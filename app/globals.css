@@ -1,26 +1,41 @@
+/* app/globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Elegant fonts loading */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@theme {
+  --font-serif: 'Cinzel', serif;
+  --font-sans: 'Montserrat', sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-gold-50: #FAF7F2;
+  --color-gold-100: #F3EEE3;
+  --color-gold-200: #E7DDBE;
+  --color-gold-300: #D8C393;
+  --color-gold-400: #C9A96B;
+  --color-gold-500: #B8935A;
+  --color-gold-600: #9E7C46;
+  --color-gold-700: #7E6338;
+  --color-gold-800: #5F4A2A;
+  --color-gold-900: #3F311C;
+
+  --color-stone-50: #F9FAFB;
+  --color-stone-100: #F3F4F6;
+  --color-stone-200: #E5E7EB;
+  --color-stone-300: #D1D5DB;
+  --color-stone-400: #9CA3AF;
+  --color-stone-500: #6B7280;
+  --color-stone-600: #4B5563;
+  --color-stone-700: #374151;
+  --color-stone-800: #1F2937;
+  --color-stone-900: #111827;
+  --color-stone-950: #030712;
+
+  --color-charcoal: #2B231F;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-gold-50);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans);
 }
