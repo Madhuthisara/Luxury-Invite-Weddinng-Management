@@ -131,26 +131,35 @@ export default function AdminDashboardPage() {
         setPasscode('');
     };
 
-    const handleUpdateWedding = async () => {
+    const handleUpdateWedding = async (overrideForm?: any) => {
         if (!wedding) return;
         setUpdateLoading(true);
         setUpdateSuccess('');
 
+        if (!editForm.wedding_date) {
+            alert("Please select a wedding date!");
+            return;
+        }
+
+        const formToSave = overrideForm || editForm;
+
         try {
+
             const { data, error: updateErr } = await supabase
                 .from('weddings')
                 .update({
-                    groom_name: editForm.groom_name,
-                    bride_name: editForm.bride_name,
+                    groom_name: formToSave.groom_name,
+                    bride_name: formToSave.bride_name,
                     wedding_date: new Date(editForm.wedding_date).toISOString(),
-                    location: editForm.location,
-                    location_map_link: editForm.location_map_link,
-                    bg_music_url: editForm.bg_music_url,
-                    passcode: editForm.passcode,
-                    blank_card_url: editForm.blank_card_url,
-                    name_y_position: editForm.name_y_position,
-                    name_color: editForm.name_color,
-                    name_font_size: editForm.name_font_size
+                    location: formToSave.location,
+                    location_map_link: formToSave.location_map_link,
+                    passcode: formToSave.passcode,
+                    blank_card_url: formToSave.blank_card_url,
+                    name_y_position: formToSave.name_y_position,
+                    name_color: formToSave.name_color,
+                    name_font_size: formToSave.name_font_size,
+                    bg_music_url: formToSave.bg_music_url || null
+
                 })
                 .eq('id', wedding.id)
                 .select()
@@ -269,6 +278,52 @@ export default function AdminDashboardPage() {
         }
     };
 
+    const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0 || !wedding) return;
+        setUploading(true);
+
+        try {
+            const file = e.target.files[0];
+
+            if (file.type !== "audio/mpeg") {
+                alert("Please upload an MP3 file.");
+                return;
+            }
+
+            const filePath = `music/${wedding.id}.mp3`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('wedding-assets')
+                .upload(filePath, file, { upsert: true });
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('wedding-assets')
+                .getPublicUrl(filePath);
+
+            setEditForm({ ...editForm, bg_music_url: publicUrl });
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const deleteMusicFile = async (currentUrl: string) => {
+        if (!currentUrl) return;
+
+        const fileName = currentUrl.split('/').pop()?.split('?')[0];
+
+        if (fileName) {
+            const { error } = await supabase.storage
+                .from('wedding-assets')
+                .remove([`music/${fileName}`]);
+
+            if (error) console.error("Storage delete error:", error);
+        }
+    };
+
     return (
         <main className="min-h-screen bg-[#FDFCFB] text-stone-900 selection:bg-gold-200/30">
             {/* Background Decor */}
@@ -365,6 +420,9 @@ export default function AdminDashboardPage() {
                                             handleUpdateWedding={handleUpdateWedding}
                                             updateLoading={updateLoading}
                                             updateSuccess={!!updateSuccess}
+                                            handleAudioUpload={handleAudioUpload}
+                                            uploading={uploading}
+                                            deleteMusicFile={deleteMusicFile}
                                         />
                                     </Card>
                                 </div>
@@ -395,7 +453,7 @@ export default function AdminDashboardPage() {
                 guest={selectedGuestForShare}
                 generateInviteLink={(guestId) => {
                     if (typeof window === 'undefined') return '';
-                    return `${window.location.origin}/${wedding?.slug}/invite?g=${guestId}`;
+                    return `${window.location.origin}/${wedding?.slug}?g=${guestId}`;
                 }}
                 handleCopy={handleCopyLink}
             />

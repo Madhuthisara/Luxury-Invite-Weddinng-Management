@@ -1,17 +1,15 @@
 // app/[slug]/page.tsx
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
-import EnvelopeClient from './EnvelopeClient';
+import InviteClient from './invite/InviteClient';
 
 interface PageProps {
     params: Promise<{ slug: string }>;
-    searchParams: Promise<{ to?: string }>;
+    searchParams: Promise<{ g?: string }>;
 }
 
-export default async function DynamicEnvelopePage({ params, searchParams }: PageProps) {
+export default async function DynamicInvitationPage({ params, searchParams }: PageProps) {
     const { slug } = await params;
-    const resolvedSearchParams = await searchParams;
-    const to = resolvedSearchParams.to || '';
 
     // Get Wedding details by slug from Supabase
     const { data: wedding, error } = await supabase
@@ -21,8 +19,8 @@ export default async function DynamicEnvelopePage({ params, searchParams }: Page
         .maybeSingle();
 
     if (error || !wedding) {
-        notFound(); // Redirects to Next.js default 404 page if no wedding slug exists
+        notFound();
     }
 
-    return <EnvelopeClient wedding={wedding} to={to} />;
+    return <InviteClient wedding={wedding} />;
 }

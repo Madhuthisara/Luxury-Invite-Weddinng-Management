@@ -3,11 +3,13 @@
 import React from 'react';
 import {
     Input,
-    Button
+    Button,
+    DatePicker
 } from "antd";
-import { Save, Calendar, MapPin, Clock, Info, CheckCircle2 } from 'lucide-react';
+import { Save, Calendar, MapPin, Clock, Info, CheckCircle2, Music } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import dayjs from 'dayjs';
 
 interface WeddingDetailsFormProps {
     editForm: {
@@ -17,11 +19,15 @@ interface WeddingDetailsFormProps {
         location: string;
         location_map_link: string;
         passcode: string;
+        bg_music_url: string;
     };
     setEditForm: (form: any) => void;
-    handleUpdateWedding: () => void;
+    handleUpdateWedding: (overrideForm?: any) => void;
     updateLoading: boolean;
     updateSuccess: boolean;
+    handleAudioUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    uploading: boolean;
+    deleteMusicFile: (currentUrl: string) => void;
 }
 
 const FormField = ({ label, children }: { label: string, children: React.ReactNode }) => (
@@ -47,7 +53,10 @@ export const WeddingDetailsForm = ({
     setEditForm,
     handleUpdateWedding,
     updateLoading,
-    updateSuccess
+    updateSuccess,
+    handleAudioUpload,
+    uploading,
+    deleteMusicFile,
 }: WeddingDetailsFormProps) => {
     return (
         <div className="space-y-8">
@@ -79,15 +88,19 @@ export const WeddingDetailsForm = ({
                     <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400 pl-1 border-l-2 border-gold-500/30 ml-1 text-left">Event Timing</p>
                     <div className="grid grid-cols-1 gap-4">
                         <FormField label="Wedding Date & Time">
-                            <div className="relative w-full">
-                                <StyledInput
-                                    type="datetime-local"
-                                    value={editForm.wedding_date}
-                                    onChange={(e: any) => setEditForm({ ...editForm, wedding_date: e.target.value })}
-                                    className="pl-12"
-                                />
-                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-stone-300 pointer-events-none" />
-                            </div>
+                            <DatePicker
+                                showTime
+                                format="YYYY-MM-DD HH:mm"
+                                placeholder="Select date and time"
+                                className="w-full h-[50px] rounded-2xl border border-stone-100 bg-stone-50/10"
+                                value={editForm.wedding_date ? dayjs(editForm.wedding_date) : null}
+                                onChange={(date) => {
+                                    setEditForm({
+                                        ...editForm,
+                                        wedding_date: date ? date.toISOString() : ''
+                                    });
+                                }}
+                            />
                         </FormField>
                         <FormField label="Admin Passcode">
                             <div className="relative w-full">
@@ -98,7 +111,7 @@ export const WeddingDetailsForm = ({
                                     onChange={(e: any) => setEditForm({ ...editForm, passcode: e.target.value })}
                                     className="pl-12"
                                 />
-                                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-stone-300 pointer-events-none" />
+
                             </div>
                         </FormField>
                     </div>
@@ -117,7 +130,7 @@ export const WeddingDetailsForm = ({
                                 onChange={(e: any) => setEditForm({ ...editForm, location: e.target.value })}
                                 className="pl-12"
                             />
-                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-stone-300 pointer-events-none" />
+
                         </div>
                     </FormField>
                     <FormField label="Google Maps Link">
@@ -126,6 +139,55 @@ export const WeddingDetailsForm = ({
                             value={editForm.location_map_link}
                             onChange={(e: any) => setEditForm({ ...editForm, location_map_link: e.target.value })}
                         />
+                    </FormField>
+                </div>
+            </div>
+
+            <div className="space-y-6">
+                <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400 pl-1 border-l-2 border-gold-500/30 ml-1 text-left">Music Settings</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField label="Background Music">
+                        <div className="flex gap-2">
+                            <div className="relative flex-1">
+                                <StyledInput
+                                    value={editForm.bg_music_url}
+                                    readOnly
+                                    placeholder="Upload MP3 file..."
+                                    className="pl-12"
+                                />
+                            </div>
+
+                            <input
+                                type="file"
+                                id="audio-upload"
+                                className="hidden"
+                                accept="audio/mp3"
+                                onChange={handleAudioUpload}
+                            />
+                            <Button
+                                onClick={() => document.getElementById('audio-upload')?.click()}
+                                size='large'
+                                loading={uploading}
+                                className="rounded-2xl px-6 font-bold text-[10px] uppercase bg-stone-900 text-white border-none"
+                            >
+                                {uploading ? 'UPLOADING...' : 'UPLOAD'}
+                            </Button>
+
+                            {editForm.bg_music_url && (
+                                <Button
+                                    onClick={async () => {
+                                        deleteMusicFile(editForm.bg_music_url);
+                                        const updatedForm = { ...editForm, bg_music_url: '' };
+                                        setEditForm(updatedForm);
+                                        handleUpdateWedding(updatedForm);
+                                    }}
+                                    size='large'
+                                    className="rounded-2xl px-6 font-bold text-[10px] uppercase bg-red-50 !text-red-600 border-none hover:bg-red-100 transition-colors"
+                                >
+                                    REMOVE
+                                </Button>
+                            )}
+                        </div>
                     </FormField>
                 </div>
             </div>
