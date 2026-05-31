@@ -772,7 +772,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                             viewport={{ once: true }}
                                             className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 p-6 md:p-10 flex flex-col md:flex-row gap-8 items-stretch"
                                         >
-                                            {/* Text Info Side */}
+
                                             <div className="flex-1 space-y-6 text-center md:text-left flex flex-col justify-center">
                                                 <div className="space-y-2">
                                                     <h3 className="text-sm uppercase tracking-[0.25em] text-[#B8935A] font-bold">
