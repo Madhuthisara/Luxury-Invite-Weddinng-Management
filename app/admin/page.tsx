@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
         setEditForm({
             groom_name: data.groom_name || '',
             bride_name: data.bride_name || '',
-            wedding_date: data.wedding_date ? new Date(data.wedding_date).toISOString().slice(0, 16) : '',
+            wedding_date: data.wedding_date ? data.wedding_date : '',
             location: data.location || '',
             location_map_link: data.location_map_link || '',
             bg_music_url: data.bg_music_url || '',
@@ -132,48 +132,43 @@ export default function AdminDashboardPage() {
     };
 
     const handleUpdateWedding = async (overrideForm?: any) => {
-        if (!wedding) return;
+        if (!wedding?.id) return;
+
         setUpdateLoading(true);
         setUpdateSuccess('');
-
-        if (!editForm.wedding_date) {
-            alert("Please select a wedding date!");
-            return;
-        }
 
         const formToSave = overrideForm || editForm;
 
         try {
-
             const { data, error: updateErr } = await supabase
                 .from('weddings')
                 .update({
                     groom_name: formToSave.groom_name,
                     bride_name: formToSave.bride_name,
-                    wedding_date: new Date(editForm.wedding_date).toISOString(),
+                    wedding_date: formToSave.wedding_date ? new Date(formToSave.wedding_date).toISOString() : null,
                     location: formToSave.location,
                     location_map_link: formToSave.location_map_link,
                     passcode: formToSave.passcode,
                     blank_card_url: formToSave.blank_card_url,
-                    name_y_position: formToSave.name_y_position,
+                    name_y_position: Number(formToSave.name_y_position) || 40,
                     name_color: formToSave.name_color,
-                    name_font_size: formToSave.name_font_size,
+                    name_font_size: Number(formToSave.name_font_size) || 28,
                     bg_music_url: formToSave.bg_music_url || null
-
                 })
                 .eq('id', wedding.id)
-                .select()
-                .single();
+                .select();
 
             if (updateErr) throw updateErr;
 
-            setWedding(data);
-            sessionStorage.setItem('logged_wedding', JSON.stringify(data));
-            setUpdateSuccess('Settings updated successfully! 🎉');
-            setTimeout(() => setUpdateSuccess(''), 3000);
-        } catch (err: any) {
+            if (data && data.length > 0) {
+                setWedding(data[0]);
+                sessionStorage.setItem('logged_wedding', JSON.stringify(data[0]));
+                setUpdateSuccess('Synced 🎉');
+                setTimeout(() => setUpdateSuccess(''), 3000);
+            }
+        } catch (err) {
             console.error(err);
-            alert('Failed to update details.');
+            alert('Update failed');
         } finally {
             setUpdateLoading(false);
         }
@@ -260,13 +255,13 @@ export default function AdminDashboardPage() {
             const filePath = `templates/${fileName}`;
 
             const { error: uploadError } = await supabase.storage
-                .from('wedding-assets')
+                .from('wedding-assets-new')
                 .upload(filePath, file);
 
             if (uploadError) throw uploadError;
 
             const { data: { publicUrl } } = supabase.storage
-                .from('wedding-assets')
+                .from('wedding-assets-new')
                 .getPublicUrl(filePath);
 
             setEditForm({ ...editForm, blank_card_url: publicUrl });
@@ -284,27 +279,27 @@ export default function AdminDashboardPage() {
 
         try {
             const file = e.target.files[0];
+            const fileName = `${wedding.id}.mp3`;
+            const filePath = `music/${fileName}`;
 
-            if (file.type !== "audio/mpeg") {
-                alert("Please upload an MP3 file.");
-                return;
-            }
-
-            const filePath = `music/${wedding.id}.mp3`;
+            await deleteMusicFile(`music/${fileName}`);
 
             const { error: uploadError } = await supabase.storage
-                .from('wedding-assets')
-                .upload(filePath, file, { upsert: true });
+                .from('wedding-assets-new')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    contentType: 'audio/mpeg'
+                });
 
             if (uploadError) throw uploadError;
 
             const { data: { publicUrl } } = supabase.storage
-                .from('wedding-assets')
+                .from('wedding-assets-new')
                 .getPublicUrl(filePath);
 
-            setEditForm({ ...editForm, bg_music_url: publicUrl });
+            setEditForm(prev => ({ ...prev, bg_music_url: publicUrl }));
         } catch (err) {
-            console.error(err);
+            console.error("Upload Error:", err);
         } finally {
             setUploading(false);
         }
@@ -317,7 +312,7 @@ export default function AdminDashboardPage() {
 
         if (fileName) {
             const { error } = await supabase.storage
-                .from('wedding-assets')
+                .from('wedding-assets-new')
                 .remove([`music/${fileName}`]);
 
             if (error) console.error("Storage delete error:", error);
@@ -417,7 +412,7 @@ export default function AdminDashboardPage() {
                                         <WeddingDetailsForm
                                             editForm={editForm}
                                             setEditForm={setEditForm}
-                                            handleUpdateWedding={handleUpdateWedding}
+                                            handleUpdateWedding={() => handleUpdateWedding()}
                                             updateLoading={updateLoading}
                                             updateSuccess={!!updateSuccess}
                                             handleAudioUpload={handleAudioUpload}
