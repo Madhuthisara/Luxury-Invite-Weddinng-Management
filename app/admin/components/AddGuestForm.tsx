@@ -69,7 +69,6 @@ export const AddGuestForm = ({
                         onMouseEnter={e => (e.currentTarget.style.background = '#a6824e')}
                         onMouseLeave={e => (e.currentTarget.style.background = '#B8935A')}
                     >
-                        <Plus className="size-4" />
                         ADD TO REGISTRY
                     </Button>
                 </form>

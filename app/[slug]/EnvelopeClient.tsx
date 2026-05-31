@@ -12,7 +12,6 @@ interface EnvelopeProps {
 export default function EnvelopeClient({ wedding, recipientName, onOpen }: EnvelopeProps) {
     // Generate some random positions for particles
     const particles = Array.from({ length: 15 });
-    console.log(recipientName);
     return (
         <main className="min-h-screen flex items-center justify-center bg-[#FAF6F0] p-4 overflow-hidden relative">
             {/* Elegant Background Decor */}

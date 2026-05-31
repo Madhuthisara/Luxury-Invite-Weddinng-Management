@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 };
 
 import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { Toaster } from 'sonner';
 
 export default function RootLayout({
   children,
@@ -21,6 +22,17 @@ export default function RootLayout({
         <Providers>
           <AntdRegistry>
             {children}
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                classNames: {
+                  success: '!bg-green-100 !text-green-800 !border !border-green-300',
+                  error: '!bg-red-100 !text-red-800 !border !border-red-300',
+                  toast: '!bg-white !text-gray-800 !border !border-gray-200',
+                },
+                duration: 2000,
+              }}
+            />
           </AntdRegistry>
         </Providers>
       </body>

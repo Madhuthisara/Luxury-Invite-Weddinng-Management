@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Card, Button, Tabs } from "antd";
+import { Card, Button, Tabs, Modal } from "antd";
 
 // Sub-components
 import { LoginScreen } from './components/LoginScreen';
@@ -15,6 +15,8 @@ import { AddGuestForm } from './components/AddGuestForm';
 import { WeddingDetailsForm } from './components/WeddingDetailsForm';
 import { InvitationDesignPanel } from './components/InvitationDesignPanel';
 import { ShareModal } from './components/ShareModal';
+import { toast } from 'sonner';
+import { ExclamationCircleFilled } from '@ant-design/icons';
 
 export default function AdminDashboardPage() {
     const [passcode, setPasscode] = useState('');
@@ -92,14 +94,13 @@ export default function AdminDashboardPage() {
             if (fetchErr) throw fetchErr;
             setGuestsList(data || []);
         } catch (err) {
-            console.error('Error fetching guests:', err);
+            toast.error('Error fetching guests.');
         }
     };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
 
         try {
             const { data, error: loginErr } = await supabase
@@ -117,8 +118,9 @@ export default function AdminDashboardPage() {
             setIsLoggedIn(true);
             await fetchDashboardData(data.id);
             populateEditForm(data);
+            toast.success('Logged in successfully!');
         } catch (err: any) {
-            setError(err.message);
+            toast.error('Invalid passcode. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -165,50 +167,80 @@ export default function AdminDashboardPage() {
                 sessionStorage.setItem('logged_wedding', JSON.stringify(data[0]));
                 setUpdateSuccess('Synced 🎉');
                 setTimeout(() => setUpdateSuccess(''), 3000);
+                toast.success('Updated successfully!');
             }
         } catch (err) {
-            console.error(err);
-            alert('Update failed');
+            toast.error('Update failed');
         } finally {
             setUpdateLoading(false);
         }
     };
 
+
     const handleAddGuest = async (e: React.FormEvent) => {
         e.preventDefault();
+
         if (!newGuestName.trim() || !wedding) return;
 
-        const { error: insertError } = await supabase
-            .from('guests')
-            .insert([
-                {
-                    wedding_id: wedding.id,
-                    name: newGuestName.trim(),
-                    max_attendees: maxAttendees,
-                    status: 'invited'
-                }
-            ]);
 
-        if (!insertError) {
+        const toastId = toast.loading('Adding guest...');
+
+        try {
+            const { error: insertError } = await supabase
+                .from('guests')
+                .insert([
+                    {
+                        wedding_id: wedding.id,
+                        name: newGuestName.trim(),
+                        max_attendees: maxAttendees,
+                        status: 'invited'
+                    }
+                ]);
+
+            if (insertError) throw insertError;
+
             setNewGuestName('');
             setMaxAttendees(2);
+
             await fetchDashboardData(wedding.id);
-        } else {
-            console.error(insertError);
-            alert('Failed to add guest. Please try again.');
+
+            toast.success('Guest added successfully!', { id: toastId });
+
+        } catch (error) {
+            console.error("Add guest error:", error);
+            toast.error('Failed to add guest. Please try again.', { id: toastId });
         }
     };
 
-    const handleDeleteGuest = async (id: string) => {
-        if (!confirm('Are you sure you want to remove this guest?')) return;
-        const { error: deleteError } = await supabase
-            .from('guests')
-            .delete()
-            .eq('id', id);
+    const handleDeleteGuest = (id: string) => {
+        Modal.confirm({
+            title: 'Are you sure you want to remove this guest?',
+            icon: <ExclamationCircleFilled style={{ color: '#ff4d4f' }} />,
+            content: 'This action cannot be undone and the guest will be removed permanently.',
+            okText: 'Yes, Delete',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            centered: true,
 
-        if (!deleteError) {
-            await fetchDashboardData(wedding.id);
-        }
+            onOk: async () => {
+                try {
+                    const { error: deleteError } = await supabase
+                        .from('guests')
+                        .delete()
+                        .eq('id', id);
+
+                    if (deleteError) throw deleteError;
+
+                    await fetchDashboardData(wedding.id);
+                    toast.success('Guest deleted successfully!');
+
+                } catch (error) {
+                    console.error("Delete error:", error);
+                    toast.error('Failed to delete guest. Please try again.');
+                }
+            },
+            onCancel() { },
+        });
     };
 
     const handleUpdateStatus = async (id: string, newStatus: string, attendeesCount?: number) => {
@@ -233,6 +265,7 @@ export default function AdminDashboardPage() {
         navigator.clipboard.writeText(link);
         setUpdateSuccess(`Invitation link for ${guest.name} copied! 📋`);
         setTimeout(() => setUpdateSuccess(''), 3000);
+        toast.success('Invitation link copied to clipboard!');
     };
 
     const handleShareLink = (guest: any) => {
@@ -265,9 +298,10 @@ export default function AdminDashboardPage() {
                 .getPublicUrl(filePath);
 
             setEditForm({ ...editForm, blank_card_url: publicUrl });
+            toast.success('File uploaded successfully!');
         } catch (err) {
             console.error('Error uploading:', err);
-            alert('Upload failed.');
+            toast.error('Upload failed.');
         } finally {
             setUploading(false);
         }
@@ -298,8 +332,9 @@ export default function AdminDashboardPage() {
                 .getPublicUrl(filePath);
 
             setEditForm(prev => ({ ...prev, bg_music_url: publicUrl }));
+            toast.success('Audio uploaded successfully!');
         } catch (err) {
-            console.error("Upload Error:", err);
+            toast.error('Upload failed.');
         } finally {
             setUploading(false);
         }
@@ -315,7 +350,8 @@ export default function AdminDashboardPage() {
                 .from('wedding-assets-new')
                 .remove([`music/${fileName}`]);
 
-            if (error) console.error("Storage delete error:", error);
+            if (error) toast.error("Storage delete error:");
+            toast.success('Audio deleted successfully!');
         }
     };
 

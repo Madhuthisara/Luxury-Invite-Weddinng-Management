@@ -1,7 +1,7 @@
 // app/[slug]/invite/InviteClient.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
     motion,
@@ -16,10 +16,71 @@ import {
 } from 'lucide-react';
 import EnvelopeClient from '../EnvelopeClient';
 import { Card, Radio, Input, Button, Form, ConfigProvider } from 'antd';
+import { toast } from 'sonner';
 
 interface InviteClientProps {
     wedding: any;
 }
+
+const PetalsLayer = memo(() => {
+    const petals = useMemo(() => {
+        return Array.from({ length: 40 }).map((_, i) => ({
+            id: i,
+            size: Math.random() * 25 + 15,
+            left: Math.random() * 100,
+            duration: Math.random() * 8 + 10,
+            delay: Math.random() * 15,
+            xDrift1: Math.random() * 80 - 40,
+            xDrift2: Math.random() * 80 - 40,
+            rotateMax: Math.random() * 360 + 180,
+            blur: Math.random() > 0.5 ? 'blur(1px)' : 'none'
+        }));
+    }, []);
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.8 }}
+            transition={{ duration: 2 }}
+
+            className="fixed inset-0 pointer-events-none overflow-hidden z-[1]"
+        >
+            {petals.map((petal) => (
+                <motion.div
+                    key={petal.id}
+                    className="absolute"
+                    style={{
+                        width: `${petal.size}px`,
+                        height: `${petal.size}px`,
+                        left: `${petal.left}%`,
+                        top: '-50px',
+                        backgroundImage: 'url("/rose.png")',
+                        backgroundSize: 'contain',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'center',
+                        filter: petal.blur,
+                        opacity: 0.5
+                    }}
+                    animate={{
+                        y: ['0vh', '400vh'],
+                        x: [0, petal.xDrift1, petal.xDrift2],
+                        rotate: [0, petal.rotateMax],
+                        opacity: [0.5, 0.8, 0.8, 0.5]
+                    }}
+                    transition={{
+                        duration: petal.duration,
+                        repeat: Infinity,
+                        delay: petal.delay,
+                        ease: "linear",
+                        times: [0.5, 0.6, 0.9, 1]
+                    }}
+                />
+            ))}
+        </motion.div>
+    );
+});
+PetalsLayer.displayName = 'PetalsLayer';
+
 
 export default function InviteClient({ wedding }: InviteClientProps) {
     const [guest, setGuest] = useState<any>(null);
@@ -92,7 +153,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                 setRecentBlessings(data);
             }
         } catch (err) {
-            console.error(err);
+            toast.error("Failed to fetch blessings.");
         }
     };
 
@@ -113,7 +174,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                     .single();
 
                 if (fetchError) {
-                    console.error("Error fetching guest:", fetchError);
+                    toast.error("Error fetching guest.");
                     setGuest({ id: 'generic', name: 'Family & Friends', max_attendees: 5, type: 'unregistered' });
                 } else if (data) {
                     setGuest({
@@ -143,8 +204,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
         };
 
         initializeGuest().catch(err => {
-            console.error("Initialization error:", err);
-            setError("Failed to load invitation details.");
+            toast.error("Failed to load invitation details.");
         });
     }, [wedding.id]);
 
@@ -218,6 +278,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                 setIsPlaying(true);
             } catch (err) {
                 console.error("Autoplay blocked:", err);
+
             }
         }
     };
@@ -262,9 +323,10 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                 confetti({ particleCount: 150, spread: 80 });
             }
             fetchBlessings();
+            toast.success('Response updated successfully!');
         } catch (err) {
             console.error(err);
-            alert('Error updating response. Please try again!');
+            toast.error('Error updating response. Please try again!');
         } finally {
             setLoading(false);
         }
@@ -392,8 +454,10 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                         initial={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
                         animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
                         transition={{ duration: 1.2, ease: "easeOut" }}
-                        className="min-h-screen bg-[#FDFCFB] text-[#2B231F] selection:bg-[#B8935A]/30 overflow-x-hidden pb-20"
+                        className="min-h-screen bg-[#FDFCFB] text-[#2B231F] selection:bg-[#B8935A]/30 overflow-x-hidden pb-20 relative"
                     >
+                        {/* Dynamic Background Magic Particles Layer (Pink/Red Tones) */}
+                        <PetalsLayer />
                         <motion.div
                             className="fixed left-0 top-0 w-[3px] h-screen bg-[#B8935A] origin-top z-[999]"
                             style={{
@@ -421,40 +485,6 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                 scale: heroScale,
                                 opacity: heroOpacity
                             }} className="min-h-screen flex flex-col justify-between items-center px-4 py-16 relative z-10 text-center overflow-hidden bg-[radial-gradient(circle_at_center,rgba(250,247,242,0.6)_0%,rgba(245,240,232,1)_100%)]">
-
-                            {/* Dynamic Background Magic Particles Layer (Pink/Red Tones) */}
-                            <motion.div
-                                style={{ y: particlesY }}
-                                className="absolute inset-0 pointer-events-none overflow-hidden z-0"
-                            >
-                                {[...Array(18)].map((_, i) => (
-                                    <motion.div
-                                        key={i}
-                                        className="absolute rounded-full"
-                                        style={{
-                                            // Red/Pink gradients with low opacity
-                                            background: 'radial-gradient(circle, rgba(255, 148, 221, 1), rgba(255, 217, 225, 0.1))',
-                                            width: Math.random() * 20 + 10 + 'px',
-                                            height: Math.random() * 20 + 10 + 'px',
-                                            left: Math.random() * 100 + '%',
-                                            top: Math.random() * 100 + '%',
-                                            filter: 'blur(4px)'
-                                        }}
-                                        animate={{
-                                            y: [0, -200, 0],
-                                            x: [0, Math.random() * 100 - 50, 0],
-                                            opacity: [0, 0.6, 0],
-                                            scale: [0.5, 1.5, 0.5]
-                                        }}
-                                        transition={{
-                                            duration: Math.random() * 15 + 15,
-                                            repeat: Infinity,
-                                            delay: Math.random() * 10,
-                                            ease: "linear"
-                                        }}
-                                    />
-                                ))}
-                            </motion.div>
 
                             {/* Top Spacing Matrix */}
                             <div className="h-4" />
@@ -906,7 +936,6 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                 <div className="h-1.5 w-1.5 bg-stone-950 rounded-full" />
                             </div>
                         </div>
-
 
                         {isPlaying ? (
                             <Volume2 className="h-5 w-5 text-white relative z-10 drop-shadow-md" />
