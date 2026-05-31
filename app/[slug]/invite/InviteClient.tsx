@@ -907,7 +907,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                             </div>
                         </div>
 
-                        {/* Floating Icons */}
+
                         {isPlaying ? (
                             <Volume2 className="h-5 w-5 text-white relative z-10 drop-shadow-md" />
                         ) : (
