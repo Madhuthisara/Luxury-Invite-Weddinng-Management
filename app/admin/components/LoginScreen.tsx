@@ -64,9 +64,10 @@ export const LoginScreen = ({ passcode, setPasscode, handleLogin, loading, error
 
                         <Button
                             htmlType="submit"
+                            size='large'
                             className={cn(
-                                "w-full h-16 bg-stone-900 text-white font-bold text-[10px] tracking-[0.3em] uppercase hover:bg-black transition-all shadow-2xl shadow-stone-900/20 rounded-2xl flex items-center justify-center gap-2 border-none",
-                                loading && "opacity-50 pointer-events-none"
+                                "w-full bg-stone-900 text-white font-bold text-[10px] tracking-[0.3em] uppercase transition-all shadow-2xl shadow-stone-900/20 rounded-2xl flex items-center justify-center gap-2 border-none",
+                                loading && "pointer-events-none"
                             )}
                         >
                             {loading ? (
@@ -75,10 +76,7 @@ export const LoginScreen = ({ passcode, setPasscode, handleLogin, loading, error
                                     AUTHENTICATING
                                 </div>
                             ) : (
-                                <>
-                                    REQUEST ACCESS
-                                    <Sparkles className="size-3.5 text-gold-400" />
-                                </>
+                                "REQUEST ACCESS"
                             )}
                         </Button>
                     </form>
