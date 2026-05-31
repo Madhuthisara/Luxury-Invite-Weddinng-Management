@@ -17,6 +17,7 @@ import {
 import EnvelopeClient from '../EnvelopeClient';
 import { Card, Radio, Input, Button, Form, ConfigProvider } from 'antd';
 import { toast } from 'sonner';
+import { form } from 'framer-motion/client';
 
 interface InviteClientProps {
     wedding: any;
@@ -96,7 +97,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
+    const [form] = Form.useForm();
     const { scrollY, scrollYProgress } = useScroll();
 
     const heroScale = useTransform(
@@ -855,19 +856,45 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                         <p className="text-[10px] uppercase tracking-[0.2em] text-stone-400 mt-2 font-bold">Please confirm your presence</p>
                                     </div>
 
-                                    <Form layout="vertical" onFinish={handleRSVPSubmit} className="space-y-6">
-                                        <Form.Item name="attending" rules={[{ required: true, message: 'Please select an option' }]}>
-                                            <Radio.Group
-                                                className="w-full grid grid-cols-2 gap-3"
-                                                onChange={(e) => setAttending(e.target.value)}
-                                            >
-                                                <Radio.Button value="yes" className="!h-14 !flex !items-center !justify-center !rounded-xl !border-stone-200 hover:!border-[#B8935A] peer-checked:!bg-[#B8935A] peer-checked:!text-white">
+                                    <Form form={form} layout="vertical" onFinish={handleRSVPSubmit} className="space-y-6">
+                                        <Form.Item
+                                            name="attending"
+                                            rules={[{ required: true, message: 'Please select an option' }]}
+                                        >
+                                            <div className="grid grid-cols-2 gap-3 w-full">
+                                                {/* Button 1: YES */}
+                                                <Button
+                                                    type="default"
+                                                    size="large"
+                                                    onClick={() => {
+                                                        setAttending('yes');
+                                                        form.setFieldsValue({ attending: 'yes' });
+                                                    }}
+                                                    className={`flex items-center justify-center text-center rounded-xl border text-[9px] sm:text-[11px] md:text-xs font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer px-1 outline-none ${attending === 'yes'
+                                                        ? '!bg-[#B8935A] !border-[#B8935A] !text-white shadow-lg shadow-[#B8935A]/30 scale-[1.02] z-10'
+                                                        : 'bg-white !border-stone-200 !text-stone-500 !hover:border-[#B8935A] !hover:text-[#B8935A]'
+                                                        }`}
+                                                >
                                                     YES, ATTENDING
-                                                </Radio.Button>
-                                                <Radio.Button value="no" className="!h-14 !flex !text-red-500 !items-center !justify-center !rounded-xl !border-stone-200 hover:!border-stone-800">
+                                                </Button>
+
+                                                {/* Button 2: NO */}
+                                                <Button
+                                                    type="default"
+                                                    size="large"
+                                                    onClick={() => {
+                                                        setAttending('no');
+                                                        form.setFieldsValue({ attending: 'no' });
+                                                        setGuestsCount(0);
+                                                    }}
+                                                    className={`flex items-center justify-center text-center rounded-xl border text-[9px] sm:text-[11px] md:text-xs font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer px-1 outline-none ${attending === 'no'
+                                                        ? '!bg-[#D84B4B] !border-[#D84B4B] !text-white shadow-lg shadow-[#D84B4B]/30 scale-[1.02] z-10'
+                                                        : 'bg-white border-stone-200 text-stone-500 hover:border-[#D84B4B] hover:text-[#D84B4B]'
+                                                        }`}
+                                                >
                                                     SORRY, CAN'T ATTEND
-                                                </Radio.Button>
-                                            </Radio.Group>
+                                                </Button>
+                                            </div>
                                         </Form.Item>
 
                                         {attending === 'yes' && (
