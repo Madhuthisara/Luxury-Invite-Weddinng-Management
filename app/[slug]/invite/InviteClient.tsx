@@ -9,7 +9,6 @@ import {
     useScroll,
     useTransform
 } from 'framer-motion';
-import confetti from 'canvas-confetti';
 import {
     CalendarDays, MapPin, Check, X, Users, Volume2, VolumeX,
     Heart, Clock, Shirt, MessageSquare, Quote, ChevronDown,
@@ -253,12 +252,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
 
     const handleOpenInvitation = () => {
         setIsOpened(true);
-        confetti({
-            particleCount: 120,
-            spread: 80,
-            origin: { y: 0.75 },
-            colors: ['#B8935A', '#2B231F', '#FAF7F2', '#EAD9C2']
-        });
+
 
         // Try playing music on user interaction
         if (audio && !isPlaying) {
@@ -283,9 +277,12 @@ export default function InviteClient({ wedding }: InviteClientProps) {
         }
     };
 
-    const handleRSVPSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!attending || !guest) return;
+    const handleRSVPSubmit = async () => {
+        if (!attending) {
+            toast.error('Please select an option before submitting!');
+            return;
+        }
+        if (!guest) return;
 
         setLoading(true);
 
@@ -319,9 +316,6 @@ export default function InviteClient({ wedding }: InviteClientProps) {
             }
 
             setSubmitted(true);
-            if (attending === 'yes') {
-                confetti({ particleCount: 150, spread: 80 });
-            }
             fetchBlessings();
             toast.success('Response updated successfully!');
         } catch (err) {
@@ -440,511 +434,546 @@ export default function InviteClient({ wedding }: InviteClientProps) {
 
     return (
         <>
-            <AnimatePresence>
-                {!isOpened ? (
-                    <EnvelopeClient
-                        key="envelope"
-                        wedding={wedding}
-                        recipientName={guest?.name}
-                        onOpen={handleOpenInvitation}
-                    />
-                ) : (
-                    <motion.main
-                        key="invitation"
-                        initial={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
-                        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                        transition={{ duration: 1.2, ease: "easeOut" }}
-                        className="min-h-screen bg-[#FDFCFB] text-[#2B231F] selection:bg-[#B8935A]/30 overflow-x-hidden pb-20 relative"
-                    >
-                        {/* Dynamic Background Magic Particles Layer (Pink/Red Tones) */}
-                        <PetalsLayer />
+            <ConfigProvider theme={{ token: { fontFamily: 'inherit', colorPrimary: '#B8935A' } }}>
+                <AnimatePresence mode="wait">
+                    {!isOpened ? (
                         <motion.div
-                            className="fixed left-0 top-0 w-[3px] h-screen bg-[#B8935A] origin-top z-[999]"
-                            style={{
-                                scaleY: scrollYProgress
-                            }}
-                        />
-                        {/* ── STYLE INJECTIONS ── */}
-                        <style dangerouslySetInnerHTML={{
-                            __html: `
+                            key="envelope"
+                            exit={{ opacity: 0 }} // Envelope එක fade out වෙන්න
+                            transition={{ duration: 0.5 }}
+                        >
+                            <EnvelopeClient
+                                key="envelope"
+                                wedding={wedding}
+                                recipientName={guest?.name}
+                                onOpen={handleOpenInvitation}
+                            /></motion.div>
+                    ) : (
+                        <motion.div
+                            key="invitation"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.8, ease: "easeOut" }} // තත්පර 0.8ක් ඇතුලත smooth ලෝඩ් වෙනවා
+                            className="min-h-screen bg-[#FAF6F0] relative selection:bg-[#B8935A]/10 selection:text-[#B8935A]"
+                        >
+                            {/* Dynamic Background Magic Particles Layer (Pink/Red Tones) */}
+                            <PetalsLayer />
+                            <motion.div
+                                className="fixed left-0 top-0 w-[3px] h-screen bg-[#B8935A] origin-top z-[999]"
+                                style={{
+                                    scaleY: scrollYProgress
+                                }}
+                            />
+                            {/* ── STYLE INJECTIONS ── */}
+                            <style dangerouslySetInnerHTML={{
+                                __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
                 .font-cursive { font-family: 'Great Vibes', cursive; }
                 .font-serif-card { font-family: 'Playfair Display', serif; }
                 `
-                        }} />
+                            }} />
 
-                        {/* Decorative frame lines */}
-                        <div className="absolute inset-4 md:inset-6 border border-[#B8935A]/10 pointer-events-none z-0" />
-                        <div className="absolute inset-5 md:inset-7 border border-[#B8935A]/5 pointer-events-none z-0" />
+                            {/* Decorative frame lines */}
+                            <div className="absolute inset-4 md:inset-6 border border-[#B8935A]/10 pointer-events-none z-0" />
+                            <div className="absolute inset-5 md:inset-7 border border-[#B8935A]/5 pointer-events-none z-0" />
 
 
 
-                        {/* ── SECTION 1: CINEMATIC HERO COVER (PREMIUM ULTRA-LUXURY WITH LIVE PARTICLES) ── */}
-                        <motion.section
-                            style={{
-                                scale: heroScale,
-                                opacity: heroOpacity
-                            }} className="min-h-screen flex flex-col justify-between items-center px-4 py-16 relative z-10 text-center overflow-hidden bg-[radial-gradient(circle_at_center,rgba(250,247,242,0.6)_0%,rgba(245,240,232,1)_100%)]">
+                            {/* ── SECTION 1: CINEMATIC HERO COVER (PREMIUM ULTRA-LUXURY WITH LIVE PARTICLES) ── */}
+                            <motion.section
+                                style={{
+                                    scale: heroScale,
+                                    opacity: heroOpacity
+                                }} className="min-h-screen flex flex-col justify-between items-center p-5 relative z-10 text-center overflow-hidden bg-[radial-gradient(circle_at_center,rgba(250,247,242,0.6)_0%,rgba(245,240,232,1)_100%)]">
 
-                            {/* Top Spacing Matrix */}
-                            <div className="h-4" />
+                                {/* Top Spacing Matrix */}
+                                <div className="h-4" />
 
-                            {/* Main Cinematic Typography Body */}
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 1.5 }}
-                                className="space-y-10 max-w-2xl relative z-10 px-2"
-                            >
-                                {/* Intro Subtitle with Tracking Reveal */}
+                                {/* Main Cinematic Typography Body */}
                                 <motion.div
-                                    initial={{ opacity: 0, letterSpacing: "0.1em" }}
-                                    animate={{ opacity: 1, letterSpacing: "0.35em" }}
-                                    transition={{ duration: 1.4, ease: "easeOut" }}
-                                    className="flex flex-col items-center gap-3"
-                                >
-                                    <span className="text-[12px] uppercase font-bold text-[#B8935A]">TOGETHER WITH THEIR FAMILIES</span>
-                                    {/* Minimalist Top Ornament */}
-                                    <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/40 to-transparent" />
-                                </motion.div>
-
-                                {/* The Royal Couple Moniker Container */}
-                                <div className="space-y-4">
-                                    <motion.h1
-                                        initial={{ opacity: 0, y: 25 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-                                        className="text-5xl md:text-7xl font-serif-card text-[#2B231F] font-extralight tracking-wide leading-[1.15]"
-                                    >
-                                        <span className="block hover:text-[#B8935A] transition-colors duration-500 cursor-default font-normal tracking-normal">{wedding.groom_name}</span>
-
-                                        {/* Luxury Intertwined Ampersand Motif */}
-                                        <motion.span
-                                            animate={{ scale: [0.98, 1.02, 0.98] }}
-                                            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                                            className="font-cursive text-6xl md:text-7xl text-[#B8935A] block my-2 italic drop-shadow-xs"
-                                        >
-                                            &amp;
-                                        </motion.span>
-
-                                        <span className="block hover:text-[#B8935A] transition-colors duration-500 cursor-default font-normal tracking-normal">{wedding.bride_name}</span>
-                                    </motion.h1>
-                                </div>
-
-                                {/* Invitation Message & Bottom Divider Line */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 15 }}
+                                    initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 1.2, delay: 0.5 }}
-                                    className="flex flex-col items-center gap-4"
+                                    transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                                    className="space-y-8 lg:w-[600px] w-full max-w-[600px] relative z-10 p-4 md:p-8 rounded-[2.5rem] border border-white/20 bg-gradient-to-b from-white/30 to-white/10 backdrop-blur-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.08)]"
                                 >
-                                    <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/30 to-transparent" />
-                                    <span className="text-[12px] uppercase tracking-[0.25em] text-stone-400 font-semibold block">REQUEST THE HONOR OF YOUR PRESENCE</span>
-                                    <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/30 to-transparent" />
-                                </motion.div>
+                                    {/* Intro Subtitle with Tracking Reveal */}
+                                    <motion.div
+                                        initial={{ opacity: 0, letterSpacing: "0.1em" }}
+                                        animate={{ opacity: 1, letterSpacing: "0.35em" }}
+                                        transition={{ duration: 1.5, ease: "easeOut" }}
+                                        className="flex flex-col items-center gap-4"
+                                    >
+                                        <span className="text-[11px] md:text-[12px] uppercase font-bold tracking-[0.35em] text-[#B8935A]">
+                                            TOGETHER WITH THEIR FAMILIES
+                                        </span>
+                                        {/* Minimalist Top Ornament */}
+                                        <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/50 to-transparent" />
+                                    </motion.div>
 
-                                {/* Premium Translucent Floating Guest Card Box */}
-                                <motion.div
-                                    initial={{ scale: 0.96, opacity: 0, y: 20 }}
-                                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.7, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                    className="bg-white/40 border border-[#B8935A]/20 rounded-[2rem] p-8 md:p-10 shadow-xl max-w-lg mx-auto backdrop-blur-md relative group hover:border-[#B8935A]/40 transition-all duration-500 bg-gradient-to-b from-white/80 to-white/30"
-                                    style={{ boxShadow: '0 20px 40px -15px rgba(184, 147, 90, 0.08)' }}
-                                >
-                                    {/* Box Internal Micro Corner Accents */}
-                                    <div className="absolute top-4 left-4 size-2 border-t border-l border-[#B8935A]/30 rounded-tl" />
-                                    <div className="absolute top-4 right-4 size-2 border-t border-r border-[#B8935A]/30 rounded-tr" />
-                                    <div className="absolute bottom-4 left-4 size-2 border-b border-l border-[#B8935A]/30 rounded-bl" />
-                                    <div className="absolute bottom-4 right-4 size-2 border-b border-r border-[#B8935A]/30 rounded-br" />
+                                    {/* The Royal Couple Moniker Container */}
+                                    <div className="space-y-2">
+                                        <motion.h1
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                                            className="text-5xl md:text-7xl font-serif-card text-stone-900 font-extralight tracking-wide leading-[1.2]"
+                                        >
+                                            <span className="block hover:text-[#B8935A] transition-colors duration-500 cursor-default font-normal tracking-normal">
+                                                {wedding.groom_name}
+                                            </span>
 
-                                    <p className="text-xl md:text-2xl font-serif-card text-stone-900 font-medium italic tracking-wide group-hover:scale-[1.01] transition-transform duration-500">
-                                        Dear <span className="text-[#9e7c46] not-italic font-semibold tracking-normal block mt-1">{guest.name}</span>
-                                    </p>
-                                    <div className="h-[1px] w-8 bg-[#B8935A]/20 mx-auto my-4" />
-                                    <p className="text-xs text-stone-500 tracking-widest uppercase font-bold text-[10px]">
-                                        We invite you to celebrate our wedding journey
-                                    </p>
-                                </motion.div>
-                            </motion.div>
+                                            {/* Luxury Intertwined Ampersand Motif */}
+                                            <motion.span
+                                                animate={{ scale: [0.97, 1.03, 0.97] }}
+                                                transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+                                                className="font-cursive text-6xl md:text-7xl text-[#B8935A] block my-3 italic drop-shadow-[0_2px_4px_rgba(184,147,90,0.1)]"
+                                            >
+                                                &amp;
+                                            </motion.span>
 
-                            {/* Royal Scroll Helper Indicator */}
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 0.7 }}
-                                transition={{ delay: 1.2, duration: 0.8 }}
-                                className="flex flex-col items-center gap-2 cursor-pointer group/scroll z-10"
-                                onClick={() => {
-                                    if (typeof window !== 'undefined') {
-                                        window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
-                                    }
-                                }}
-                            >
-                                <span className="text-[12px] uppercase tracking-[0.3em] text-stone-400 font-bold group-hover/scroll:text-[#B8935A] transition-colors duration-300">Scroll to open</span>
-                                <motion.div
-                                    animate={{ y: [0, 6, 0] }}
-                                    transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-                                >
-                                    <ChevronDown className="h-6 w-6 text-[#B8935A] group-hover/scroll:scale-110 transition-transform" />
-                                </motion.div>
-                            </motion.div>
-                        </motion.section>
-
-                        {/* ── MAIN CONTENT CONTAINER (Responsive layout change: width 75% on large screens, full on mobile) ── */}
-                        <div className="w-full xl:max-w-[75%] lg:max-w-[85%] md:max-w-[90%] mx-auto px-4 md:px-6 relative z-10 space-y-16">
-
-                            {/* ── SECTION 2: GRID WORKSPACE (INVITATION CANVAS & RSVP PORTAL) ── */}
-
-                            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12  items-center justify-center w-full h-auto px-4">
-                                <motion.div
-                                    initial={{
-                                        opacity: 0,
-                                        y: 80,
-                                        rotateX: 15,
-                                        scale: 0.95
-                                    }}
-                                    whileInView={{
-                                        opacity: 1,
-                                        y: 0,
-                                        rotateX: 0,
-                                        scale: 1
-                                    }}
-                                    transition={{
-                                        duration: 1.3,
-                                        ease: [0.16, 1, 0.3, 1]
-                                    }}
-                                    style={{
-                                        transformPerspective: 1200
-                                    }}
-                                    viewport={{ once: true, margin: '-50px' }}
-                                    className="bg-white w-full max-w-[720px] flex flex-col items-center justify-center p-6 md:p-12 text-center relative overflow-hidden bg-[radial-gradient(#ffffff_40%,#fbf9f6_100%)]"
-                                >
-                                    {/* Header Content */}
-                                    <div className="space-y-1 mb-6">
-                                        <p className="text-[10px] tracking-widest text-[#B8935A] uppercase font-semibold">TOGETHER WITH THEIR FAMILIES</p>
-                                        <p className="text-[9px] tracking-widest text-stone-400 font-medium uppercase mt-2">
-                                            REQUEST THE HONOUR OF THE PRESENCE OF
-                                        </p>
+                                            <span className="block hover:text-[#B8935A] transition-colors duration-500 cursor-default font-normal tracking-normal">
+                                                {wedding.bride_name}
+                                            </span>
+                                        </motion.h1>
                                     </div>
 
-                                    {/* Image Canvas View Mode - Responsive Width */}
-                                    {wedding.blank_card_url ? (
-                                        <div className="relative w-full aspect-[3/4] overflow-hidden bg-stone-50 border border-stone-100 rounded-2xl shadow-sm @container">
-                                            <img src={wedding.blank_card_url} alt="Blank Card template" className="w-full h-full object-cover pointer-events-none" />
-                                            <div
-                                                className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[90%] select-none font-semibold"
-                                                style={{
-                                                    top: `${wedding.name_y_position}%`,
-                                                    color: wedding.name_color,
-                                                    fontSize: `${(wedding.name_font_size / 340) * 100}cqw`,
-                                                    fontFamily: 'Playfair Display, serif',
-                                                    textShadow: `0 1px 4px ${wedding.name_color}15`
-                                                }}
-                                            >
-                                                {guest.name}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        /* Fallback Pure Embedded Text Layout Mode */
-                                        <div className="space-y-6 py-6 w-full">
-                                            <div className="py-2">
-                                                <span className="text-[9px] uppercase tracking-widest text-[#B8935A] block">SPECIALLY INVITED</span>
-                                                <p className="text-2xl font-serif-card font-semibold text-stone-800 italic mt-1 px-4 inline-block border-b border-stone-200 pb-1">
-                                                    {guest.name}
-                                                </p>
-                                            </div>
+                                    {/* Invitation Message & Bottom Divider Line */}
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ duration: 1, delay: 0.6 }}
+                                        className="flex flex-col items-center gap-4 pt-4"
+                                    >
+                                        <div className="w-28 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/30 to-transparent" />
+                                        <span className="text-[10px] md:text-[11px] uppercase tracking-[0.3em] text-stone-400 font-bold block">
+                                            REQUEST THE HONOR OF YOUR PRESENCE
+                                        </span>
+                                        <div className="w-28 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/30 to-transparent" />
+                                    </motion.div>
 
-                                            <h2 className="text-4xl md:text-5xl font-cursive text-[#B8935A] tracking-wider py-1">
-                                                {wedding.groom_name}
-                                            </h2>
-                                            <span className="font-serif-card text-sm text-stone-400 block my-1">and</span>
-                                            <h2 className="text-4xl md:text-5xl font-cursive text-[#B8935A] tracking-wider py-1">
-                                                {wedding.bride_name}
-                                            </h2>
+                                    {/* Premium Translucent Floating Guest Card Box */}
+                                    <motion.div
+                                        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                                        className="bg-white/70 border border-white/40 rounded-[2rem] p-8 md:p-10 shadow-[0_20px_40px_-15px_rgba(184,147,90,0.12)] max-w-lg mx-auto backdrop-blur-md relative group hover:border-[#B8935A]/30 hover:shadow-[0_30px_60px_-15px_rgba(184,147,90,0.18)] transition-all duration-700 bg-gradient-to-b from-white/90 to-white/60"
+                                    >
+                                        {/* Box Internal Micro Corner Accents */}
+                                        <div className="absolute top-4 left-4 size-2.5 border-t border-l border-[#B8935A]/40 rounded-tl transition-all duration-500 group-hover:top-3 group-hover:left-3" />
+                                        <div className="absolute top-4 right-4 size-2.5 border-t border-r border-[#B8935A]/40 rounded-tr transition-all duration-500 group-hover:top-3 group-hover:right-3" />
+                                        <div className="absolute bottom-4 left-4 size-2.5 border-b border-l border-[#B8935A]/40 rounded-bl transition-all duration-500 group-hover:bottom-3 group-hover:left-3" />
+                                        <div className="absolute bottom-4 right-4 size-2.5 border-b border-r border-[#B8935A]/40 rounded-br transition-all duration-500 group-hover:bottom-3 group-hover:right-3" />
 
-                                            {/* Date Segmented Grid */}
-                                            <div className="grid grid-cols-3 items-center max-w-xs mx-auto border-y border-[#B8935A]/30 py-4 my-8">
-                                                <div className="text-center">
-                                                    <span className="text-[10px] font-serif-card tracking-widest text-stone-500 block uppercase font-semibold">
-                                                        {dayName}
-                                                    </span>
-                                                </div>
-                                                <div className="text-center border-x border-[#B8935A]/30 px-2">
-                                                    <span className="text-3xl font-serif-card text-[#B8935A] font-medium block leading-none">
-                                                        {dayNum}
-                                                    </span>
-                                                    <span className="text-[8px] tracking-widest text-stone-400 block mt-1 uppercase font-bold">
-                                                        {ordinalSuffix}
-                                                    </span>
-                                                </div>
-                                                <div className="text-center">
-                                                    <span className="text-[10px] font-serif-card tracking-widest text-stone-500 block uppercase font-semibold">
-                                                        {monthName}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-1">
-                                                <span className="text-[9px] italic text-stone-400 uppercase tracking-widest">AT</span>
-                                                <p className="text-sm font-serif-card text-stone-800 font-semibold uppercase tracking-widest">
-                                                    {wedding.location}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
+                                        <p className="text-xl md:text-2xl font-serif-card text-stone-900 font-medium italic tracking-wide">
+                                            Dear <span className="text-[#9e7c46] not-italic font-semibold tracking-normal block mt-1 drop-shadow-xs">{guest.name}</span>
+                                        </p>
+                                        <div className="h-[1px] w-12 bg-[#B8935A]/20 mx-auto my-5" />
+                                        <p className="text-[10px] md:text-xs text-stone-400 tracking-widest uppercase font-bold">
+                                            We invite you to celebrate our wedding journey
+                                        </p>
+                                    </motion.div>
                                 </motion.div>
 
-                            </div>
-
-
-                            {/* ── SECTION 3: BOTTOM DECORATIVE META ROW (Grid layout for Countdown & Attire) ── */}
-                            <div className="grid grid-cols-1  gap-6 w-full">
-
-                                {/* ── 3. LIVE COUNTDOWN TIMER & ADD TO CALENDAR ── */}
-                                <div className="space-y-4">
+                                {/* Royal Scroll Helper Indicator */}
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 0.7 }}
+                                    transition={{ delay: 1.2, duration: 0.8 }}
+                                    className="flex flex-col items-center gap-2 cursor-pointer group/scroll z-10"
+                                    onClick={() => {
+                                        if (typeof window !== 'undefined') {
+                                            window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+                                        }
+                                    }}
+                                >
+                                    <span className="text-[12px] uppercase tracking-[0.3em] text-stone-400 font-bold group-hover/scroll:text-[#B8935A] transition-colors duration-300">Scroll to open</span>
                                     <motion.div
-                                        initial={{ opacity: 0, scale: 0.98 }}
-                                        whileInView={{ opacity: 1, scale: 1 }}
-                                        viewport={{ once: true }}
-                                        className="flex flex-col items-center bg-[#1C1816] text-white p-6 md:p-8 rounded-3xl shadow-xl relative overflow-hidden flex flex-col justify-center"
+                                        animate={{ y: [0, 6, 0] }}
+                                        transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
                                     >
-                                        <div className="absolute -right-10 -bottom-10 h-32 w-32 rounded-full border border-stone-800/40" />
-                                        <span className="text-[9px] uppercase tracking-[0.35em] text-amber-500 font-semibold block text-center mb-6">
-                                            COUNTING DOWN TO THE VOWS
-                                        </span>
-                                        <div className="grid grid-cols-4 gap-3 relative z-10 max-w-sm mx-auto w-full mb-8">
-                                            {[
-                                                { val: timeLeft.days, label: 'Days' },
-                                                { val: timeLeft.hours, label: 'Hours' },
-                                                { val: timeLeft.minutes, label: 'Mins' },
-                                                { val: timeLeft.seconds, label: 'Secs' }
-                                            ].map(({ val, label }) => (
-                                                <div key={label} className="text-center bg-stone-900/60 border border-stone-800 p-3 rounded-2xl">
-                                                    <AnimatePresence mode="wait">
-                                                        <motion.span
-                                                            key={val}
-                                                            initial={{
-                                                                rotateX: -90,
-                                                                opacity: 0
-                                                            }}
-                                                            animate={{
-                                                                rotateX: 0,
-                                                                opacity: 1
-                                                            }}
-                                                            exit={{
-                                                                rotateX: 90,
-                                                                opacity: 0
-                                                            }}
-                                                            transition={{
-                                                                duration: 0.35
-                                                            }}
-                                                            className="text-2xl md:text-3xl font-serif-card text-amber-400 font-medium block"
-                                                        >
-                                                            {val}
-                                                        </motion.span>
-                                                    </AnimatePresence>
-                                                    <span className="text-[8px] text-stone-400 uppercase tracking-widest block mt-1 font-semibold">
-                                                        {label}
-                                                    </span>
-                                                </div>
-                                            ))}
+                                        <ChevronDown className="h-6 w-6 text-[#B8935A] group-hover/scroll:scale-110 transition-transform" />
+                                    </motion.div>
+                                </motion.div>
+                            </motion.section>
+
+                            {/* ── MAIN CONTENT CONTAINER (Responsive layout change: width 75% on large screens, full on mobile) ── */}
+                            <div className="w-full xl:max-w-[75%] lg:max-w-[85%] md:max-w-[90%] mx-auto px-4 md:px-6 relative z-10 space-y-16">
+
+                                {/* ── SECTION 2: GRID WORKSPACE (INVITATION CANVAS & RSVP PORTAL) ── */}
+
+                                <div className="flex flex-col lg:flex-row gap-8 lg:gap-12  items-center justify-center w-full h-auto">
+                                    <motion.div
+                                        initial={{
+                                            opacity: 0,
+                                            y: 80,
+                                            rotateX: 15,
+                                            scale: 0.95
+                                        }}
+                                        whileInView={{
+                                            opacity: 1,
+                                            y: 0,
+                                            rotateX: 0,
+                                            scale: 1
+                                        }}
+                                        transition={{
+                                            duration: 1.3,
+                                            ease: [0.16, 1, 0.3, 1]
+                                        }}
+                                        style={{
+                                            transformPerspective: 1200
+                                        }}
+                                        viewport={{ once: true, margin: '-50px' }}
+                                        className="bg-white w-full max-w-[720px] flex flex-col items-center justify-center p-6 md:p-12 text-center relative overflow-hidden bg-transparent rounded-2xl"
+                                    >
+                                        {/* Header Content */}
+                                        <div className="space-y-1 mb-6">
+                                            <p className="text-[10px] tracking-widest text-[#B8935A] uppercase font-semibold">TOGETHER WITH THEIR FAMILIES</p>
+                                            <p className="text-[9px] tracking-widest text-stone-400 font-medium uppercase mt-2">
+                                                REQUEST THE HONOUR OF THE PRESENCE OF
+                                            </p>
                                         </div>
 
-                                        {/* Add to Calendar Button */}
-                                        <a
-                                            href={`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`${wedding.groom_name} & ${wedding.bride_name} Wedding`)}&dates=${new Date(wedding.wedding_date).toISOString().replace(/-|:|\.\d\d\d/g, "")}/${new Date(new Date(wedding.wedding_date).getTime() + 2 * 60 * 60 * 1000).toISOString().replace(/-|:|\.\d\d\d/g, "")}&details=Join us for our wedding celebration!&location=${encodeURIComponent(wedding.location)}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="w-[50%] py-3 bg-[#B8935A] hover:bg-[#a6824e] text-white rounded-xl text-xs font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2 shadow-lg"
-                                        >
-                                            <CalendarDays className="h-4 w-4" /> Save the Date
-                                        </a>
-                                    </motion.div>
-                                </div>
-
-
-                                {/* ── LOCATION & MAPS SECTION ── */}
-                                <section className="py-12 px-4 bg-[#FBF9F6] w-full">
-                                    <div className="max-w-6xl mx-auto w-full">
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            whileInView={{ opacity: 1, y: 0 }}
-                                            viewport={{ once: true }}
-                                            className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 p-6 md:p-10 flex flex-col md:flex-row gap-8 items-stretch"
-                                        >
-
-                                            <div className="flex-1 space-y-6 text-center md:text-left flex flex-col justify-center">
-                                                <div className="space-y-2">
-                                                    <h3 className="text-sm uppercase tracking-[0.25em] text-[#B8935A] font-bold">
-                                                        The Venue
-                                                    </h3>
-                                                    <h2 className="text-3xl md:text-4xl font-serif-card text-[#2B231F]">
-                                                        {wedding.location_name || "Wedding Venue"}
-                                                    </h2>
-                                                    <p className="text-stone-500 font-medium leading-relaxed">
-                                                        {wedding.location}
+                                        {/* Image Canvas View Mode - Responsive Width */}
+                                        {wedding.blank_card_url ? (
+                                            <div className="relative w-full aspect-[3/4] overflow-hidden bg-transparent @container">
+                                                <img src={wedding.blank_card_url} alt="Blank Card template" className="w-full h-full object-cover pointer-events-none" />
+                                                <div
+                                                    className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[90%] select-none font-semibold"
+                                                    style={{
+                                                        top: `${wedding.name_y_position}%`,
+                                                        color: wedding.name_color,
+                                                        fontSize: `${(wedding.name_font_size / 340) * 100}cqw`,
+                                                        fontFamily: 'Playfair Display, serif',
+                                                        textShadow: `0 1px 4px ${wedding.name_color}15`
+                                                    }}
+                                                >
+                                                    {guest.name}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            /* Fallback Pure Embedded Text Layout Mode */
+                                            <div className="space-y-6 py-6 w-full">
+                                                <div className="py-2">
+                                                    <span className="text-[9px] uppercase tracking-widest text-[#B8935A] block">SPECIALLY INVITED</span>
+                                                    <p className="text-2xl font-serif-card font-semibold text-stone-800 italic mt-1 px-4 inline-block border-b border-stone-200 pb-1">
+                                                        {guest.name}
                                                     </p>
                                                 </div>
 
-                                                <p className="text-sm text-stone-400 italic">
-                                                    "We look forward to celebrating this joyous occasion with you."
-                                                </p>
+                                                <h2 className="text-4xl md:text-5xl font-cursive text-[#B8935A] tracking-wider py-1">
+                                                    {wedding.groom_name}
+                                                </h2>
+                                                <span className="font-serif-card text-sm text-stone-400 block my-1">and</span>
+                                                <h2 className="text-4xl md:text-5xl font-cursive text-[#B8935A] tracking-wider py-1">
+                                                    {wedding.bride_name}
+                                                </h2>
 
-                                                {wedding.location_map_link && (
-                                                    <div className="pt-2">
-                                                        <a
-                                                            href={wedding.location_map_link}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="inline-flex items-center gap-2 bg-[#B8935A] hover:bg-[#9e7c46] text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg"
-                                                        >
-                                                            Open in Map
-                                                        </a>
+                                                {/* Date Segmented Grid */}
+                                                <div className="grid grid-cols-3 items-center max-w-xs mx-auto border-y border-[#B8935A]/30 py-4 my-8">
+                                                    <div className="text-center">
+                                                        <span className="text-[10px] font-serif-card tracking-widest text-stone-500 block uppercase font-semibold">
+                                                            {dayName}
+                                                        </span>
                                                     </div>
-                                                )}
+                                                    <div className="text-center border-x border-[#B8935A]/30 px-2">
+                                                        <span className="text-3xl font-serif-card text-[#B8935A] font-medium block leading-none">
+                                                            {dayNum}
+                                                        </span>
+                                                        <span className="text-[8px] tracking-widest text-stone-400 block mt-1 uppercase font-bold">
+                                                            {ordinalSuffix}
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <span className="text-[10px] font-serif-card tracking-widest text-stone-500 block uppercase font-semibold">
+                                                            {monthName}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-1">
+                                                    <span className="text-[9px] italic text-stone-400 uppercase tracking-widest">AT</span>
+                                                    <p className="text-sm font-serif-card text-stone-800 font-semibold uppercase tracking-widest">
+                                                        {wedding.location}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </motion.div>
+
+                                </div>
+
+
+                                {/* ── SECTION 3: BOTTOM DECORATIVE META ROW (Grid layout for Countdown & Attire) ── */}
+                                <div className="grid grid-cols-1  gap-6 w-full">
+
+                                    {/* ── 3. LIVE COUNTDOWN TIMER & ADD TO CALENDAR ── */}
+                                    <div className="space-y-4">
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.98 }}
+                                            whileInView={{ opacity: 1, scale: 1 }}
+                                            viewport={{ once: true }}
+                                            className="flex flex-col items-center bg-[#1C1816] text-white p-6 md:p-8 rounded-3xl shadow-xl relative overflow-hidden flex flex-col justify-center"
+                                        >
+                                            <div className="absolute -right-10 -bottom-10 h-32 w-32 rounded-full border border-stone-800/40" />
+                                            <span className="text-[9px] uppercase tracking-[0.35em] text-amber-500 font-semibold block text-center mb-6">
+                                                COUNTING DOWN TO THE VOWS
+                                            </span>
+                                            <div className="grid grid-cols-4 gap-3 relative z-10 max-w-sm mx-auto w-full mb-8">
+                                                {[
+                                                    { val: timeLeft.days, label: 'Days' },
+                                                    { val: timeLeft.hours, label: 'Hours' },
+                                                    { val: timeLeft.minutes, label: 'Mins' },
+                                                    { val: timeLeft.seconds, label: 'Secs' }
+                                                ].map(({ val, label }) => (
+                                                    <div key={label} className="text-center bg-stone-900/60 border border-stone-800 p-3 rounded-2xl">
+                                                        <AnimatePresence mode="wait">
+                                                            <motion.span
+                                                                key={val}
+                                                                initial={{
+                                                                    rotateX: -90,
+                                                                    opacity: 0
+                                                                }}
+                                                                animate={{
+                                                                    rotateX: 0,
+                                                                    opacity: 1
+                                                                }}
+                                                                exit={{
+                                                                    rotateX: 90,
+                                                                    opacity: 0
+                                                                }}
+                                                                transition={{
+                                                                    duration: 0.35
+                                                                }}
+                                                                className="text-2xl md:text-3xl font-serif-card text-amber-400 font-medium block"
+                                                            >
+                                                                {val}
+                                                            </motion.span>
+                                                        </AnimatePresence>
+                                                        <span className="text-[8px] text-stone-400 uppercase tracking-widest block mt-1 font-semibold">
+                                                            {label}
+                                                        </span>
+                                                    </div>
+                                                ))}
                                             </div>
 
-                                            {/* Google Maps Embed Side - Responsive Wrapper */}
-                                            <motion.div
-                                                initial={{
-                                                    x: 80,
-                                                    opacity: 0
-                                                }}
-                                                whileInView={{
-                                                    x: 0,
-                                                    opacity: 1
-                                                }}
-                                                transition={{
-                                                    duration: 1
-                                                }}
-                                                viewport={{ once: true }} className="w-full md:w-1/2 h-[300px] md:h-auto min-h-[300px] rounded-2xl overflow-hidden shadow-inner border border-stone-100 relative">
-                                                {wedding.location_map_link ? (
-                                                    <iframe
-                                                        src={getEmbedUrl()}
-                                                        width="100%"
-                                                        height="100%"
-                                                        style={{ border: 0, minHeight: '300px' }}
-                                                        loading="lazy"
-                                                        referrerPolicy="no-referrer-when-downgrade"
-                                                        className="w-full h-full transition-all duration-700"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full bg-stone-100 flex items-center justify-center text-stone-400 text-xs uppercase tracking-widest">
-                                                        Map not available
-                                                    </div>
-                                                )}
-                                            </motion.div>
+                                            {/* Add to Calendar Button */}
+                                            <a
+                                                href={`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`${wedding.groom_name} & ${wedding.bride_name} Wedding`)}&dates=${new Date(wedding.wedding_date).toISOString().replace(/-|:|\.\d\d\d/g, "")}/${new Date(new Date(wedding.wedding_date).getTime() + 2 * 60 * 60 * 1000).toISOString().replace(/-|:|\.\d\d\d/g, "")}&details=Join us for our wedding celebration!&location=${encodeURIComponent(wedding.location)}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="w-[50%] py-3 bg-[#B8935A] hover:bg-[#a6824e] text-white rounded-xl text-xs font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2 shadow-lg"
+                                            >
+                                                <CalendarDays className="h-4 w-4" /> Save the Date
+                                            </a>
                                         </motion.div>
                                     </div>
-                                </section>
 
-                            </div>
 
-                            {/* ── COLUMN RIGHT: INTERACTIVE RSVP FORM PORTAL (Takes 5 cols on Desktop) ── */}
-                            <motion.div
-                                id="rsvp"
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                className="w-full"
-                            >
-                                <Card
-                                    className="rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border-stone-100 overflow-hidden"
-                                    styles={{ body: { padding: '2rem' } }}
-                                >
-                                    <div className="text-center mb-8">
-                                        <h3 className="font-serif text-2xl text-stone-800">Will you be there?</h3>
-                                        <p className="text-[10px] uppercase tracking-[0.2em] text-stone-400 mt-2 font-bold">Please confirm your presence</p>
-                                    </div>
-
-                                    <Form layout="vertical" onFinish={handleRSVPSubmit} className="space-y-6">
-                                        <Form.Item name="attending" rules={[{ required: true, message: 'Please select an option' }]}>
-                                            <Radio.Group
-                                                className="w-full grid grid-cols-2 gap-3"
-                                                onChange={(e) => setAttending(e.target.value)}
+                                    {/* ── LOCATION & MAPS SECTION ── */}
+                                    <section className="py-12 px-4 bg-[#FBF9F6] w-full">
+                                        <div className="max-w-6xl mx-auto w-full">
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 20 }}
+                                                whileInView={{ opacity: 1, y: 0 }}
+                                                viewport={{ once: true }}
+                                                className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 p-6 md:p-10 flex flex-col md:flex-row gap-8 items-stretch"
                                             >
-                                                <Radio.Button value="yes" className="!h-14 !flex !items-center !justify-center !rounded-xl !border-stone-200 hover:!border-[#B8935A] peer-checked:!bg-[#B8935A] peer-checked:!text-white">
-                                                    YES, ATTENDING
-                                                </Radio.Button>
-                                                <Radio.Button value="no" className="!h-14 !flex !text-red-500 !items-center !justify-center !rounded-xl !border-stone-200 hover:!border-stone-800">
-                                                    SORRY, CAN'T ATTEND
-                                                </Radio.Button>
-                                            </Radio.Group>
-                                        </Form.Item>
 
-                                        {attending === 'yes' && (
-                                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}>
-                                                <Form.Item label={<span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Number of Guests</span>}>
-                                                    <Input
-                                                        type="number"
-                                                        min={1}
-                                                        max={guest.max_attendees}
-                                                        value={guestsCount}
-                                                        onChange={(e) => setGuestsCount(Number(e.target.value))}
-                                                        className="!h-12 !rounded-xl"
-                                                    />
-                                                </Form.Item>
+                                                <div className="flex-1 space-y-6 text-center md:text-left flex flex-col justify-center">
+                                                    <div className="space-y-2">
+                                                        <h3 className="text-sm uppercase tracking-[0.25em] text-[#B8935A] font-bold">
+                                                            The Venue
+                                                        </h3>
+                                                        <h2 className="text-3xl md:text-4xl font-serif-card text-[#2B231F]">
+                                                            {wedding.location_name || "Wedding Venue"}
+                                                        </h2>
+                                                        <p className="text-stone-500 font-medium leading-relaxed">
+                                                            {wedding.location}
+                                                        </p>
+                                                    </div>
+
+                                                    <p className="text-sm text-stone-400 italic">
+                                                        "We look forward to celebrating this joyous occasion with you."
+                                                    </p>
+
+                                                    {wedding.location_map_link && (
+                                                        <div className="pt-2">
+                                                            <a
+                                                                href={wedding.location_map_link}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-2 bg-[#B8935A] hover:bg-[#9e7c46] text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg"
+                                                            >
+                                                                Open in Map
+                                                            </a>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Google Maps Embed Side - Responsive Wrapper */}
+                                                <motion.div
+                                                    initial={{
+                                                        x: 80,
+                                                        opacity: 0
+                                                    }}
+                                                    whileInView={{
+                                                        x: 0,
+                                                        opacity: 1
+                                                    }}
+                                                    transition={{
+                                                        duration: 1
+                                                    }}
+                                                    viewport={{ once: true }} className="w-full md:w-1/2 h-[300px] md:h-auto min-h-[300px] rounded-2xl overflow-hidden shadow-inner border border-stone-100 relative">
+                                                    {wedding.location_map_link ? (
+                                                        <iframe
+                                                            src={getEmbedUrl()}
+                                                            width="100%"
+                                                            height="100%"
+                                                            style={{ border: 0, minHeight: '300px' }}
+                                                            loading="lazy"
+                                                            referrerPolicy="no-referrer-when-downgrade"
+                                                            className="w-full h-full transition-all duration-700"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full bg-stone-100 flex items-center justify-center text-stone-400 text-xs uppercase tracking-widest">
+                                                            Map not available
+                                                        </div>
+                                                    )}
+                                                </motion.div>
                                             </motion.div>
-                                        )}
+                                        </div>
+                                    </section>
 
-                                        <Form.Item label={<span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Your Wishes</span>}>
-                                            <Input.TextArea
-                                                placeholder="Write something special for the couple..."
-                                                value={blessingInput}
-                                                onChange={(e) => setBlessingInput(e.target.value)}
-                                                className="!rounded-xl !py-3"
-                                                rows={3}
-                                            />
-                                        </Form.Item>
+                                </div>
 
-                                        <Button
-                                            type="primary"
-                                            htmlType="submit"
-                                            loading={loading}
-                                            className="w-full h-14 !bg-stone-900 !rounded-xl font-bold tracking-widest uppercase hover:!bg-stone-800"
-                                        >
-                                            Confirm RSVP
-                                        </Button>
-                                    </Form>
-                                </Card>
-                            </motion.div>
+                                {/* ── COLUMN RIGHT: INTERACTIVE RSVP FORM PORTAL (Takes 5 cols on Desktop) ── */}
+                                <motion.div
+                                    id="rsvp"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    className="w-full mb-10"
+                                >
+                                    <Card
+                                        className="rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border-stone-100 overflow-hidden"
+                                        styles={{ body: { padding: '2rem' } }}
+                                    >
+                                        <div className="text-center mb-8">
+                                            <h3 className="font-serif text-2xl text-stone-800">Will you be there?</h3>
+                                            <p className="text-[10px] uppercase tracking-[0.2em] text-stone-400 mt-2 font-bold">Please confirm your presence</p>
+                                        </div>
 
-                        </div>
-                    </motion.main>
-                )
-                }
-            </AnimatePresence >
+                                        <Form layout="vertical" onFinish={handleRSVPSubmit} className="space-y-2 flex flex-col items-center w-full">
+                                            <div className="w-full flex justify-between gap-3 md:gap-4">
+                                                <Button
+                                                    type="primary"
+                                                    size="large"
+                                                    onClick={() => setAttending('yes')}
+                                                    className={`flex-1 w-1/2 flex items-center justify-center rounded-xl border transition-all duration-300 font-bold tracking-widest text-[10px] !text-xs !md:text-sm cursor-pointer
+            ${attending === 'yes'
+                                                            ? 'bg-[#B8935A] text-white border-[#B8935A] shadow-md shadow-[#B8935A]/20'
+                                                            : 'bg-white text-stone-500 border-stone-200 hover:border-[#B8935A] hover:text-[#B8935A]'}`}
+                                                >
+                                                    <span className='!text-[12px] !md:text-sm'>YES, ATTENDING</span>
+                                                </Button>
 
-            {/* ── SECTION: PREMIUM ANIMATED VINYL MUSIC WIDGET (Persistent) ── */}
-            {
-                isOpened && wedding.bg_music_url && (
-                    <button
-                        onClick={toggleMusic}
-                        className="fixed top-6 right-6 h-12 w-12 md:h-14 md:w-14 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-md border border-white shadow-[0_0_20px_rgba(184,147,90,0.3)] z-[999] cursor-pointer overflow-hidden transition-all duration-500 hover:scale-110 hover:shadow-[0_0_30px_rgba(184,147,90,0.5)] group"
-                    >
-                        {/* Animated Background Ring */}
-                        <div className={`absolute inset-0 rounded-full border-2 border-[#B8935A]/60 opacity-70 ${isPlaying ? 'animate-ping' : ''}`} />
+                                                <Button
+                                                    size="large"
+                                                    onClick={() => setAttending('no')}
+                                                    className={`flex-1 w-1/2 flex items-center justify-center rounded-xl border transition-all duration-300 font-bold tracking-widest text-[10px] !text-xs !md:text-sm cursor-pointer
+            ${attending === 'no'
+                                                            ? 'bg-red-500 text-red-500 border-red-500 shadow-md shadow-red-500/20'
+                                                            : 'bg-white text-red-500 border-red-500 hover:border-red-500 hover:text-red-500'}`}
+                                                >
+                                                    <span className='!text-[12px] !md:text-sm'>
+                                                        SORRY, CAN'T ATTEND
+                                                    </span>
+                                                </Button>
+                                            </div>
 
-                        {/* Rotating Vinyl Disk */}
-                        <div
-                            className={`absolute inset-1.5 rounded-full bg-stone-950 flex items-center justify-center transition-transform duration-1000 ${isPlaying ? 'animate-[spin_4s_linear_infinite]' : ''}`}
-                        >
-                            {/* Vinyl Texture grooves */}
-                            <div className="absolute inset-1 rounded-full border border-stone-800/50" />
-                            <div className="absolute inset-2.5 rounded-full border border-stone-800/30" />
+                                            {attending === 'yes' && (
 
-                            {/* Center Label */}
-                            <div className="h-4 w-4 rounded-full bg-amber-500 flex items-center justify-center shadow-inner">
-                                <div className="h-1.5 w-1.5 bg-stone-950 rounded-full" />
+                                                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="w-full">
+
+                                                    <Form.Item className="w-full mb-0" label={<span className="text-[12px] !md:text-sm font-bold uppercase tracking-widest text-stone-400">Number of Guests</span>}>
+                                                        <Input
+                                                            type="number"
+                                                            size="large"
+                                                            min={1}
+                                                            max={guest.max_attendees}
+                                                            value={guestsCount}
+                                                            onChange={(e) => setGuestsCount(Number(e.target.value))}
+                                                            className="w-full"
+                                                        />
+                                                    </Form.Item>
+                                                </motion.div>
+                                            )}
+
+
+                                            <Form.Item className="w-full" label={<span className="text-[12px] !md:text-sm font-bold uppercase tracking-widest text-stone-400 flex w-full">Your Wishes</span>}>
+                                                <Input.TextArea
+                                                    placeholder="Write something special for the couple..."
+                                                    size='large'
+                                                    value={blessingInput}
+                                                    onChange={(e) => setBlessingInput(e.target.value)}
+                                                    rows={2}
+                                                    className="w-full"
+                                                />
+                                            </Form.Item>
+
+                                            <Button
+                                                type="primary"
+                                                size='large'
+                                                htmlType="submit"
+                                                loading={loading}
+                                                className="w-full !bg-stone-900 !rounded-xl font-bold tracking-widest uppercase hover:!bg-stone-800"
+                                            >
+                                                <span className='!text-[12px] !md:text-sm'>
+                                                    Confirm RSVP
+                                                </span>
+                                            </Button>
+                                        </Form>
+                                    </Card>
+                                </motion.div>
+
                             </div>
-                        </div>
+                        </motion.div>
+                    )
+                    }
+                </AnimatePresence >
 
-                        {isPlaying ? (
-                            <Volume2 className="h-5 w-5 text-white relative z-10 drop-shadow-md" />
-                        ) : (
-                            <VolumeX className="h-5 w-5 text-[#B8935A] relative z-10 drop-shadow-md" />
-                        )}
-                    </button>
-                )
-            }
+                {/* ── SECTION: PREMIUM ANIMATED VINYL MUSIC WIDGET (Persistent) ── */}
+                {
+                    isOpened && wedding.bg_music_url && (
+                        <button
+                            onClick={toggleMusic}
+                            className="fixed top-6 right-6 h-12 w-12 md:h-14 md:w-14 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-md border border-white shadow-[0_0_20px_rgba(184,147,90,0.3)] z-[999] cursor-pointer overflow-hidden transition-all duration-500 hover:scale-110 hover:shadow-[0_0_30px_rgba(184,147,90,0.5)] group"
+                        >
+                            {/* Animated Background Ring */}
+                            <div className={`absolute inset-0 rounded-full border-2 border-[#B8935A]/60 opacity-70 ${isPlaying ? 'animate-ping' : ''}`} />
+
+                            {/* Rotating Vinyl Disk */}
+                            <div
+                                className={`absolute inset-1.5 rounded-full bg-stone-950 flex items-center justify-center transition-transform duration-1000 ${isPlaying ? 'animate-[spin_4s_linear_infinite]' : ''}`}
+                            >
+                                {/* Vinyl Texture grooves */}
+                                <div className="absolute inset-1 rounded-full border border-stone-800/50" />
+                                <div className="absolute inset-2.5 rounded-full border border-stone-800/30" />
+
+                                {/* Center Label */}
+                                <div className="h-4 w-4 rounded-full bg-amber-500 flex items-center justify-center shadow-inner">
+                                    <div className="h-1.5 w-1.5 bg-stone-950 rounded-full" />
+                                </div>
+                            </div>
+
+                            {isPlaying ? (
+                                <Volume2 className="h-5 w-5 text-white relative z-10 drop-shadow-md" />
+                            ) : (
+                                <VolumeX className="h-5 w-5 text-[#B8935A] relative z-10 drop-shadow-md" />
+                            )}
+                        </button>
+                    )
+                }
+            </ConfigProvider>
         </>
     );
 }

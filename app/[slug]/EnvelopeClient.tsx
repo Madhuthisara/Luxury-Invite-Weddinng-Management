@@ -1,7 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Heart } from 'lucide-react';
+import { useState } from 'react';
 
 interface EnvelopeProps {
     wedding: any;
@@ -10,15 +11,32 @@ interface EnvelopeProps {
 }
 
 export default function EnvelopeClient({ wedding, recipientName, onOpen }: EnvelopeProps) {
-    // Generate some random positions for particles
+    const [isAnimating, setIsAnimating] = useState(false);
     const particles = Array.from({ length: 15 });
+
+    const handleOpen = () => {
+        if (isAnimating) return;
+        setIsAnimating(true);
+
+        if (typeof window !== 'undefined') {
+            const audio = new Audio('/sounds/seal-open.mp3');
+            audio.volume = 0.7;
+            audio.play().catch(err => console.log("Audio play blocked by browser:", err));
+        }
+        setTimeout(() => {
+            onOpen();
+        }, 1000);
+    };
+
+    console.log(wedding);
+
     return (
-        <main className="min-h-screen flex items-center justify-center bg-[#FAF6F0] p-4 overflow-hidden relative">
+        <main className="min-h-screen flex flex-col items-center justify-center bg-[#FAF6F0] p-4 overflow-hidden relative">
             {/* Elegant Background Decor */}
             <div className="absolute inset-0 opacity-10 pointer-events-none"
                 style={{ backgroundImage: 'radial-gradient(#B8935A 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
 
-            {/* Floating Gold Particles (Background) */}
+            {/* Floating Gold Particles */}
             {particles.map((_, i) => (
                 <motion.div
                     key={i}
@@ -30,140 +48,132 @@ export default function EnvelopeClient({ wedding, recipientName, onOpen }: Envel
                         top: `${Math.random() * 100}%`,
                     }}
                     animate={{
-                        y: [0, -100, 0],
-                        opacity: [0, 0.5, 0],
-                        scale: [0.5, 1.2, 0.5],
+                        y: [0, -30, 0],
+                        opacity: [0.3, 0.8, 0.3]
                     }}
                     transition={{
-                        duration: Math.random() * 10 + 10,
+                        duration: Math.random() * 3 + 3,
                         repeat: Infinity,
-                        ease: "linear",
-                        delay: Math.random() * 5,
+                        ease: "easeInOut"
                     }}
                 />
             ))}
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 1.5, filter: 'blur(20px)', transition: { duration: 0.8 } }}
-                className="relative z-10 flex flex-col items-center"
-            >
-                {/* Elegant Top Header */}
-                <div className="text-center mb-10">
-                    <motion.span
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                        className="text-[10px] md:text-xs text-[#B8935A] tracking-[0.5em] uppercase font-bold block mb-8"
-                    >
-                        Wedding Invitation
-                    </motion.span>
-                    <h1 className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6">
-                        <span className="font-cursive text-5xl md:text-7xl text-[#B8935A] italic">
-                            {wedding.groom_name}
-                        </span>
-
-                        <span className="font-serif italic text-xl md:text-3xl text-stone-400 my-2 md:my-0 font-light">
-                            &
-                        </span>
-
-                        <span className="font-cursive text-5xl md:text-7xl text-[#B8935A] italic">
-                            {wedding.bride_name}
-                        </span>
+            {/* Elegant Top Header */}
+            <div className="text-center mb-10">
+                <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={isAnimating ? { opacity: 0, y: -20 } : { opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="text-[10px] md:text-xs text-[#B8935A] tracking-[0.5em] uppercase font-bold block mb-8"
+                >
+                    Wedding Invitation
+                </motion.span>
+                <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6">
+                    <h1 className="text-4xl md:text-7xl font-cursive text-stone-800 mb-3 drop-shadow-sm">
+                        {wedding?.groom_name} <span className="text-[#B8935A] italic text-3xl md:text-4xl">&</span> {wedding?.bride_name}
                     </h1>
                 </div>
-
                 <motion.p
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8 }}
-                    className="text-stone-400 font-serif italic mb-8 text-sm md:text-base animate-pulse"
-                >
+                    className="text-[9px] md:text-[10px] text-stone-500 uppercase tracking-[0.4em] font-medium">
                     Dear {recipientName || "Guest"}, please scroll over or tap to open your invitation
                 </motion.p>
+            </div>
 
-                {/* The Envelope Component */}
+            {/* Main Envelope Container */}
+            <motion.div
+                className="relative w-[320px] md:w-[560px] h-[200px] md:h-[320px] cursor-pointer mt-5"
+                onClick={handleOpen}
+                animate={isAnimating ? { y: 150 } : { y: 0 }}
+                transition={{ duration: 0.8, delay: 0.8, ease: "easeInOut" }}
+            >
+
+                {/* 1. Inner Card (Cinematic Full Screen Zoom Effect) */}
                 <motion.div
-                    whileHover={{ scale: 1.02, rotateY: 5, rotateX: 5 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    className="relative w-[320px] h-[220px] md:w-[450px] md:h-[300px] cursor-pointer group perspe-1000"
-                    onClick={onOpen}
+                    className="z-10 absolute inset-2 bg-white rounded-lg shadow-md flex items-center justify-center border border-[#B8935A]/20 overflow-hidden origin-center"
+                    initial={{ y: 0, scale: 1, rotate: 0, opacity: 1 }}
+                    animate={isAnimating ? {
+                        y: [0, -350, 0],
+                        rotate: [0, 90, 90],
+                        scale: [1, 1.2, 12],
+                        opacity: [1, 1, 0]
+                    } : {}}
+                    transition={{
+                        duration: 1.5,
+                        delay: 0.5,
+                        ease: "easeInOut",
+                        times: [0, 0.4, 1]
+                    }}
                 >
-                    {/* Shadow Layer */}
-                    <div className="absolute inset-0 bg-stone-900/10 blur-2xl rounded-xl translate-y-8 group-hover:translate-y-12 transition-transform duration-500" />
-
-                    {/* Back Wing (The container) */}
-                    <div className="absolute inset-0 bg-[#E8DCC4] rounded-xl shadow-inner border border-stone-200/50" />
-
-                    {/* The Invitation Card (Peek out) */}
-                    <motion.div
-                        initial={{ y: -10 }}
-                        whileHover={{ y: -45 }}
-                        className="absolute inset-x-6 top-4 bottom-4 bg-white rounded-lg shadow-sm flex flex-col items-center justify-center p-6 border border-stone-100 z-10 transition-transform duration-500"
-                    >
-                        <span className="text-[8px] md:text-[10px] text-[#B8935A] tracking-[0.3em] font-bold uppercase mb-2">
-                            Together with their families
-                        </span>
-
-                        <div className="text-center space-y-1 mb-4">
-                            <h3 className="text-xl md:text-3xl font-serif text-stone-800">
-                                {recipientName || "Wedding Journey"}
-                            </h3>
+                    {wedding?.blank_card_url ? (
+                        <img
+                            src={wedding.blank_card_url}
+                            alt="Wedding Invitation Card"
+                            className="w-full h-full object-contain -rotate-90 scale-[1.4] md:scale-[1.2]"
+                        />
+                    ) : (
+                        <div className="text-center opacity-30 p-4">
+                            <div className="w-12 h-12 rounded-full border border-[#B8935A] mx-auto mb-2" />
+                            <div className="w-24 h-2 bg-stone-300 mx-auto rounded mb-2" />
+                            <div className="w-16 h-2 bg-stone-300 mx-auto rounded" />
                         </div>
+                    )}
+                </motion.div>
 
-                        <div className="w-12 h-[1px] bg-[#B8935A]/30 mb-4" />
+                {/* 2. Envelope Back */}
+                <div className="absolute inset-0 bg-[#D4C19C] rounded-lg shadow-2xl z-0 -z-10" />
 
-                        <p className="text-[9px] md:text-[10px] text-stone-500 italic text-center max-w-[80%] leading-relaxed">
-                            We cordially invite you to join us in celebrating our special day
-                        </p>
+                {/* 3. Envelope Bottom & Side Flaps */}
+                <div className="absolute inset-0 bg-[#E5D3B3] rounded-lg z-20 shadow-inner" style={{ clipPath: 'polygon(0% 100%, 50% 45%, 100% 100%, 100% 100%, 0% 100%)' }} />
+                <div className="absolute inset-0 bg-[#DFCCAB] rounded-lg z-20" style={{ clipPath: 'polygon(0% 0%, 50% 45%, 0% 100%)' }} />
+                <div className="absolute inset-0 bg-[#DFCCAB] rounded-lg z-20" style={{ clipPath: 'polygon(100% 0%, 50% 45%, 100% 100%)' }} />
 
-                        <div className="mt-4">
-                            <p className="text-[8px] md:text-[10px] text-stone-400 uppercase tracking-widest font-semibold">
-                                Specially Invited:
-                            </p>
-                            <p className="text-xs md:text-sm font-serif italic text-[#B8935A] mt-1">
-                                {recipientName || "Family & Friends"}
-                            </p>
-                        </div>
-                    </motion.div>
+                {/* 4. Top Flap */}
+                <motion.div
+                    className="absolute inset-0 bg-[#E5D3B3] origin-top rounded-t-lg z-30 shadow-[0_5px_15px_rgba(0,0,0,0.1)] border-b border-white/20"
+                    style={{ clipPath: 'polygon(0% 0%, 50% 60%, 100% 0%)' }}
+                    animate={isAnimating ? { rotateX: -180, zIndex: 0 } : { rotateX: 0 }}
+                    whileHover={!isAnimating ? { rotateX: -20 } : {}}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                />
 
-                    {/* Side Wings & Bottom Wing (Visual Polish) */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#D4C3A3] via-transparent to-transparent rounded-xl opacity-50 z-20" />
-                    <div className="absolute inset-0 flex z-30">
-                        <div className="h-full w-full bg-[#EAD9C2] clip-path-envelope-bottom"
-                            style={{ clipPath: 'polygon(0% 100%, 50% 50%, 100% 100%)' }} />
+                {/* 5. Wax Seal */}
+                <motion.div
+                    className="absolute top-[50%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-40"
+                    animate={isAnimating ? {
+                        y: [0, -50, 500],
+                        rotate: [0, -15, 90],
+                        opacity: [1, 1, 0],
+                        scale: [1, 1.1, 0.8]
+                    } : { y: 0, rotate: 0, opacity: 1, scale: 1 }}
+                    whileHover={!isAnimating ? { scale: 1.2, rotate: 10 } : {}}
+                    transition={{ duration: 1, ease: "easeIn" }}
+                >
+                    <div className="size-12 md:size-16 bg-[#8B0000] rounded-full flex items-center justify-center shadow-[0_4px_10px_rgba(139,0,0,0.4)] border-2 border-[#A52A2A] relative">
+                        <Heart className="size-6 text-white/90 fill-white/20" />
+                        <div className="absolute inset-0 rounded-full border border-white/10" />
                     </div>
-
-                    {/* Top Flap (Animated) */}
-                    <motion.div
-                        className="absolute inset-x-0 top-0 h-1/2 bg-[#D9C8AC] shadow-md origin-top z-40 border-t border-white/20"
-                        style={{ clipPath: 'polygon(0% 0%, 50% 100%, 100% 0%)' }}
-                        whileHover={{ rotateX: -40 }}
-                        transition={{ duration: 0.4 }}
-                    />
-
-                    {/* Wax Seal */}
-                    <motion.div
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50"
-                        whileHover={{ scale: 1.2, rotate: 10 }}
-                    >
-                        <div className="size-12 md:size-16 bg-[#8B0000] rounded-full flex items-center justify-center shadow-[0_4px_10px_rgba(139,0,0,0.4)] border-2 border-[#A52A2A] relative">
-                            <Heart className="size-6 text-white/90 fill-white/20" />
-                            <div className="absolute inset-0 rounded-full border border-white/10" />
-                        </div>
-                    </motion.div>
-
-                    {/* Instruction Tag */}
-                    <motion.div
-                        animate={{ y: [0, 5, 0] }}
-                        transition={{ repeat: Infinity, duration: 2 }}
-                        className="absolute -bottom-16 left-0 right-0 text-center z-50"
-                    >
-                        <p className="text-[10px] text-[#B8935A] tracking-[0.4em] uppercase font-bold">Tap to Open</p>
-                    </motion.div>
                 </motion.div>
             </motion.div>
+
+            {/* Instruction Tag */}
+            <AnimatePresence>
+                {!isAnimating && (
+                    <motion.div
+                        animate={{ y: [0, 5, 0] }}
+                        exit={{ opacity: 0, y: 20 }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                        className="absolute bottom-12 left-0 right-0 text-center z-50 pointer-events-none"
+                    >
+                        <p className="text-[10px] text-[#B8935A] uppercase tracking-[0.3em] font-bold">
+                            Tap to open
+                        </p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </main>
     );
 }
