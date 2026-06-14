@@ -159,7 +159,7 @@ export const GuestTable = ({ guestsList, handleShareLink, handleCopyLink, handle
     const totalInvitedCount = guestsList.reduce((sum, g) => sum + (g.max_attendees || 0), 0);
 
     return (<>
-        <div className="shadow-2xl shadow-stone-900/5 rounded-xl border border-stone-100 overflow-hidden bg-white/90 backdrop-blur-md">
+        <div className="shadow-2xl shadow-stone-900/5 rounded-xl border border-stone-100 bg-white/90 backdrop-blur-md">
             {/* Header */}
             <div className="flex items-center justify-between px-8 pt-4 pb-4">
                 <div className="flex items-center gap-4">
@@ -189,8 +189,15 @@ export const GuestTable = ({ guestsList, handleShareLink, handleCopyLink, handle
             </div>
 
             {/* Body */}
-            <div className="p-0 overflow-x-auto">
-                <Table columns={columns as any} dataSource={data} rowKey="id" pagination={false} className="w-full" />
+            <div className="p-0">
+                <Table
+                    columns={columns as any}
+                    dataSource={data}
+                    rowKey="id"
+                    pagination={false}
+                    className="w-full"
+                    scroll={{ y: 450 }}
+                />
             </div>
         </div>
 
