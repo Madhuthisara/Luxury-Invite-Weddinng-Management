@@ -203,7 +203,7 @@ export default function AdminDashboardPage() {
             if (insertError) throw insertError;
 
             setNewGuestName('');
-            setMaxAttendees(2);
+            setMaxAttendees(1);
 
             await fetchDashboardData(wedding.id);
 
