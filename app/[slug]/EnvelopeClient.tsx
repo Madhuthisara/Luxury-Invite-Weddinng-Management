@@ -17,12 +17,6 @@ export default function EnvelopeClient({ wedding, recipientName, onOpen }: Envel
     const handleOpen = () => {
         if (isAnimating) return;
         setIsAnimating(true);
-
-        if (typeof window !== 'undefined') {
-            const audio = new Audio('/sounds/seal-open.mp3');
-            audio.volume = 0.7;
-            audio.play().catch(err => console.log("Audio play blocked by browser:", err));
-        }
         setTimeout(() => {
             onOpen();
         }, 1000);
@@ -65,20 +59,20 @@ export default function EnvelopeClient({ wedding, recipientName, onOpen }: Envel
                     initial={{ opacity: 0 }}
                     animate={isAnimating ? { opacity: 0, y: -20 } : { opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, ease: "easeOut" }}
-                    className="text-[10px] md:text-xs text-[#B8935A] tracking-[0.5em] uppercase font-bold block mb-8"
+                    className="text-md md:text-xs text-[#B8935A] tracking-[0.5em] uppercase font-bold block mb-8"
                 >
                     Wedding Invitation
                 </motion.span>
                 <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6">
                     <h1 className="text-4xl md:text-7xl font-cursive text-stone-800 mb-3 drop-shadow-sm">
-                        {wedding?.groom_name} <span className="text-[#B8935A] italic text-3xl md:text-4xl">&</span> {wedding?.bride_name}
+                        {wedding?.bride_name} <span className="text-[#B8935A] italic text-3xl md:text-4xl">&</span> {wedding?.groom_name}
                     </h1>
                 </div>
                 <motion.p
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8 }}
-                    className="text-[9px] md:text-[10px] text-stone-500 uppercase tracking-[0.4em] font-medium">
+                    className="text-xs md:text-sm text-stone-500 uppercase tracking-[0.4em] font-medium">
                     Dear {recipientName || "Guest"}, please scroll over or tap to open your invitation
                 </motion.p>
             </div>

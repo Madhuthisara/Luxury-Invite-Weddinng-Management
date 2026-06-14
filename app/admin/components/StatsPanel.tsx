@@ -68,7 +68,7 @@ export const StatsPanel = ({ stats }: any) => {
             <div className="flex items-center justify-between px-1">
                 <p className="text-[10px] uppercase font-bold tracking-widest text-stone-400">Guest Overview</p>
                 <span className="text-[10px] font-bold text-stone-500 bg-stone-100 px-3 py-1 rounded-full">
-                    {total} Total Guests
+                    {stats.families ? `${stats.families} Families · ` : ''}{total} Total Guests
                 </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
