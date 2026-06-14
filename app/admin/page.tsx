@@ -31,7 +31,7 @@ export default function AdminDashboardPage() {
 
     // Guest Management State
     const [newGuestName, setNewGuestName] = useState('');
-    const [maxAttendees, setMaxAttendees] = useState(2);
+    const [maxAttendees, setMaxAttendees] = useState(1);
 
     // Editing Wedding Details & Design State
     const [editForm, setEditForm] = useState({
@@ -92,7 +92,7 @@ export default function AdminDashboardPage() {
                 .from('guests')
                 .select('*')
                 .eq('wedding_id', weddingId)
-                .order('name', { ascending: true });
+                .order('id', { ascending: false });
 
             if (fetchErr) throw fetchErr;
             setGuestsList(data || []);
@@ -441,15 +441,24 @@ export default function AdminDashboardPage() {
                                                     setMaxAttendees={setMaxAttendees}
                                                     handleAddGuest={handleAddGuest}
                                                 />
-                                                <div className="lg:col-span-2">
+                                                <div className="lg:col-span-2 flex flex-col gap-4">
                                                     <GuestTable
-                                                        guestsList={guestsList}
+                                                        guestsList={guestsList.slice(0, 5)}
                                                         handleShareLink={handleShareLink}
                                                         handleCopyLink={handleCopyLink}
                                                         handleDeleteGuest={handleDeleteGuest}
                                                         handleUpdateStatus={handleUpdateStatus}
                                                         onRefresh={() => fetchDashboardData(wedding.id)}
                                                     />
+                                                    <div className="flex justify-center">
+                                                        <Button
+                                                            type="link"
+                                                            onClick={() => setIsRegistryFullView(true)}
+                                                            className="text-gold-600 font-bold uppercase tracking-widest text-[10px] hover:text-gold-700"
+                                                        >
+                                                            View Full Registry →
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

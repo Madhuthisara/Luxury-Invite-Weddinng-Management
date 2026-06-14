@@ -65,19 +65,20 @@ export const WeddingDetailsForm = ({
                 <div className="space-y-6">
                     <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-stone-400 pl-1 border-l-2 border-gold-500/30 ml-1 text-left">The Happy Couple</p>
                     <div className="grid grid-cols-1 gap-4">
-                        <FormField label="Groom's Name">
-                            <StyledInput
-
-                                placeholder="Full name"
-                                value={editForm.groom_name}
-                                onChange={(e: any) => setEditForm({ ...editForm, groom_name: e.target.value })}
-                            />
-                        </FormField>
                         <FormField label="Bride's Name">
                             <StyledInput
                                 placeholder="Full name"
+                                size='large'
                                 value={editForm.bride_name}
                                 onChange={(e: any) => setEditForm({ ...editForm, bride_name: e.target.value })}
+                            />
+                        </FormField>
+                        <FormField label="Groom's Name">
+                            <StyledInput
+                                size='large'
+                                placeholder="Full name"
+                                value={editForm.groom_name}
+                                onChange={(e: any) => setEditForm({ ...editForm, groom_name: e.target.value })}
                             />
                         </FormField>
                     </div>
@@ -92,7 +93,8 @@ export const WeddingDetailsForm = ({
                                 showTime
                                 format="YYYY-MM-DD HH:mm"
                                 placeholder="Select date and time"
-                                className="w-full h-[50px] rounded-2xl border border-stone-100 bg-stone-50/10"
+                                size='large'
+                                className="w-full rounded-2xl border border-stone-100 bg-stone-50/10"
                                 value={editForm.wedding_date ? dayjs(editForm.wedding_date) : null}
                                 onChange={(date) => {
                                     setEditForm({
@@ -106,6 +108,7 @@ export const WeddingDetailsForm = ({
                             <div className="relative w-full">
                                 <StyledInput
                                     type="text"
+                                    size='large'
                                     placeholder="Enter secure passcode"
                                     value={editForm.passcode}
                                     onChange={(e: any) => setEditForm({ ...editForm, passcode: e.target.value })}
