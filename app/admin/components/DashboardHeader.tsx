@@ -8,9 +8,10 @@ import { motion } from 'framer-motion';
 
 interface DashboardHeaderProps {
     handleLogout: () => void;
+    onNavClick?: (navName: string) => void;
 }
 
-export const DashboardHeader = ({ handleLogout }: DashboardHeaderProps) => {
+export const DashboardHeader = ({ handleLogout, onNavClick }: DashboardHeaderProps) => {
     // Nav items mapping for cleaner code
     const navItems = [
         { name: 'Registry', icon: UserCircle },
@@ -41,10 +42,13 @@ export const DashboardHeader = ({ handleLogout }: DashboardHeaderProps) => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-1 h-full">
                 {navItems.map((item) => (
-                    <Link
+                    <a
                         key={item.name}
-                        href="#"
-                        className="group relative px-5 h-full flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-800 transition-colors"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            if (onNavClick) onNavClick(item.name);
+                        }}
+                        className="group relative px-5 h-full flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-800 transition-colors cursor-pointer"
                     >
                         <item.icon className="size-3.5" />
                         {item.name}
@@ -53,7 +57,7 @@ export const DashboardHeader = ({ handleLogout }: DashboardHeaderProps) => {
                             initial={{ scaleX: 0 }}
                             whileHover={{ scaleX: 1 }}
                         />
-                    </Link>
+                    </a>
                 ))}
             </nav>
 

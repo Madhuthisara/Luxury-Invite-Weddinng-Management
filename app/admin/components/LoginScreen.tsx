@@ -26,7 +26,7 @@ export const LoginScreen = ({ passcode, setPasscode, handleLogin, loading, error
             exit={{ opacity: 0, y: -15 }}
             className="flex flex-col items-center justify-center min-h-screen relative z-10 px-4"
         >
-            <Card className="max-w-sm w-full rounded-[2.5rem] shadow-2xl border-none bg-white/90 backdrop-blur-xl relative overflow-hidden [&>.ant-card-body]:p-0">
+            <Card className="max-w-md w-full rounded-[2.5rem] shadow-2xl border-none bg-white/90 backdrop-blur-xl relative overflow-hidden [&>.ant-card-body]:p-0">
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
 
                 <div className="flex flex-col items-center justify-center gap-2 pt-12 pb-8">
@@ -89,10 +89,6 @@ export const LoginScreen = ({ passcode, setPasscode, handleLogin, loading, error
                     </div>
                 </div>
             </Card>
-
-            <div className="mt-8">
-                <p className="text-stone-400/60 font-serif italic text-sm">Savishka & Dinuka Wedding</p>
-            </div>
         </motion.div>
     );
 };

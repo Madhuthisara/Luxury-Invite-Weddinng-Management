@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Table, Tag, Button, Dropdown, message, Modal, InputNumber } from "antd";
+import { Table, Tag, Button, Dropdown, message, Modal, InputNumber, Select } from "antd";
 import type { MenuProps } from 'antd';
-import { Users, MoreVertical, Heart, Clock, Mail, Eye, CheckCircle2, XCircle } from 'lucide-react';
+import { Users, MoreVertical, Heart, Clock, Mail, Eye, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
 
 interface Guest {
     id: string;
@@ -20,6 +20,7 @@ interface GuestTableProps {
     handleCopyLink: (guest: Guest) => void;
     handleDeleteGuest: (id: string) => void;
     handleUpdateStatus: (id: string, status: string, attendeesCount?: number) => void;
+    onRefresh?: () => void;
 }
 
 const statusColorMap: Record<string, string> = {
@@ -38,7 +39,7 @@ const STATUS_CONFIG: Record<string, { label: string; icon: any }> = {
     no: { label: 'Declined', icon: XCircle },
 };
 
-export const GuestTable = ({ guestsList, handleShareLink, handleCopyLink, handleDeleteGuest, handleUpdateStatus }: GuestTableProps) => {
+export const GuestTable = ({ guestsList, handleShareLink, handleCopyLink, handleDeleteGuest, handleUpdateStatus, onRefresh }: GuestTableProps) => {
     const [data, setData] = useState<Guest[]>(guestsList);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
@@ -75,6 +76,14 @@ export const GuestTable = ({ guestsList, handleShareLink, handleCopyLink, handle
     };
 
     const columns = [
+        {
+            title: <span className="text-[10px] font-black tracking-widest text-stone-400 uppercase">#</span>,
+            key: 'index',
+            width: 50,
+            render: (_: any, __: any, index: number) => (
+                <span className="text-stone-400 font-mono text-xs">{index + 1}</span>
+            )
+        },
         {
             title: <span className="text-[10px] font-black tracking-widest text-stone-400 uppercase">GUEST NAME</span>,
             dataIndex: 'name',
@@ -113,30 +122,29 @@ export const GuestTable = ({ guestsList, handleShareLink, handleCopyLink, handle
             )
         },
         {
+            title: <span className="text-[10px] font-black tracking-widest text-stone-400 uppercase">UPDATE STATUS</span>,
+            key: 'update_status',
+            render: (_: any, guest: Guest) => (
+                <Select
+                    value={guest.status}
+                    style={{ width: 120 }}
+                    onChange={(value) => handleStatusAction(guest, value)}
+                    options={Object.entries(STATUS_CONFIG).map(([key, config]) => ({
+                        value: key,
+                        label: config.label,
+                    }))}
+                />
+            )
+        },
+        {
             title: <span className="text-[10px] font-black tracking-widest text-stone-400 uppercase">ACTIONS</span>,
             key: 'actions',
             align: 'right' as const,
             render: (_: any, guest: Guest) => {
                 const items: MenuProps['items'] = [
-                    {
-                        type: 'group',
-                        label: 'Update Status',
-                        children: Object.entries(STATUS_CONFIG).map(([key, config]) => ({
-                            key: `status-${key}`,
-                            label: config.label,
-                            onClick: () => handleStatusAction(guest, key)
-                        }))
-                    },
-                    { type: 'divider' },
-                    {
-                        type: 'group',
-                        label: 'Actions',
-                        children: [
-                            { key: 'share', label: 'Share', onClick: () => handleShareLink(guest) },
-                            { key: 'copy', label: 'Copy Link', onClick: () => handleCopyLink(guest) },
-                            { key: 'delete', label: <span className="text-rose-500">Remove</span>, onClick: () => handleDeleteGuest(guest.id) }
-                        ]
-                    }
+                    { key: 'share', label: 'Share', onClick: () => handleShareLink(guest) },
+                    { key: 'copy', label: 'Copy Link', onClick: () => handleCopyLink(guest) },
+                    { key: 'delete', label: <span className="text-rose-500">Remove</span>, onClick: () => handleDeleteGuest(guest.id) }
                 ];
 
                 return (
@@ -148,10 +156,12 @@ export const GuestTable = ({ guestsList, handleShareLink, handleCopyLink, handle
         }
     ];
 
+    const totalInvitedCount = guestsList.reduce((sum, g) => sum + (g.max_attendees || 0), 0);
+
     return (<>
-        <div className="shadow-2xl shadow-stone-900/5 rounded-[2rem] border border-stone-100 overflow-hidden bg-white/90 backdrop-blur-md">
+        <div className="shadow-2xl shadow-stone-900/5 rounded-xl border border-stone-100 overflow-hidden bg-white/90 backdrop-blur-md">
             {/* Header */}
-            <div className="flex items-center justify-between px-8 pt-8 pb-4">
+            <div className="flex items-center justify-between px-8 pt-4 pb-4">
                 <div className="flex items-center gap-4">
                     <div className="h-12 w-12 bg-stone-900 text-[#B8935A] rounded-2xl flex items-center justify-center shadow-lg">
                         <Users className="size-6" />
@@ -161,7 +171,21 @@ export const GuestTable = ({ guestsList, handleShareLink, handleCopyLink, handle
                         <p className="text-[10px] text-stone-400 uppercase tracking-[0.2em] font-bold">Manage digital invitations</p>
                     </div>
                 </div>
-                <Tag color="cyan" className="bg-stone-100 border-none text-stone-600 font-bold px-4 py-1 rounded-full">{guestsList.length} Families</Tag>
+                <div className="flex items-center gap-2">
+                    <div className="flex gap-2">
+                        <Tag color="cyan" className="bg-stone-100 border-none text-stone-600 font-bold px-4 py-1 rounded-full">{guestsList.length} Families</Tag>
+                        <Tag color="blue" className="bg-stone-100 border-none text-stone-600 font-bold px-4 py-1 rounded-full">{totalInvitedCount} Invited</Tag>
+                    </div>
+                    {onRefresh && (
+                        <Button
+                            type="text"
+                            shape="circle"
+                            icon={<RefreshCw className="size-4 text-stone-400" />}
+                            onClick={onRefresh}
+                            className="hover:rotate-180 transition-all duration-500"
+                        />
+                    )}
+                </div>
             </div>
 
             {/* Body */}

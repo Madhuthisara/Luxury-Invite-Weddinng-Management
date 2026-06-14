@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Card, Button, Tabs, Modal } from "antd";
+import { Card, Button, Tabs, Modal, Drawer } from "antd";
 
 // Sub-components
 import { LoginScreen } from './components/LoginScreen';
@@ -54,6 +54,9 @@ export default function AdminDashboardPage() {
     // Share Modal State
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [selectedGuestForShare, setSelectedGuestForShare] = useState<any>(null);
+
+    // Full View State
+    const [isRegistryFullView, setIsRegistryFullView] = useState(false);
 
     // Check session on load
     useEffect(() => {
@@ -380,100 +383,132 @@ export default function AdminDashboardPage() {
                         className="relative z-10 pt-28 pb-10 px-4 md:px-8 max-w-7xl mx-auto flex flex-col gap-10"
                     >
                         {/* Header */}
-                        <DashboardHeader handleLogout={handleLogout} />
+                        <DashboardHeader
+                            handleLogout={handleLogout}
+                            onNavClick={(name) => {
+                                if (name === 'Registry') setIsRegistryFullView(true);
+                            }}
+                        />
 
-                        {/* Metrics */}
-                        {wedding && (
-                            <StatsPanel
-                                stats={{
-                                    total: guestsList.length,
-                                    invited: guestsList.filter(g => g.status === 'invited').length,
-                                    sent: guestsList.filter(g => g.status === 'sent').length,
-                                    opened: guestsList.filter(g => g.status === 'opened').length,
-                                    yes: guestsList.filter(g => g.status === 'yes').length,
-                                    no: guestsList.filter(g => g.status === 'no').length
-                                }}
-                            />
-                        )}
+                        {/* Content Area */}
+                        {!isRegistryFullView ? (
+                            <>
+                                {/* Metrics */}
+                                {wedding && (
+                                    <StatsPanel
+                                        stats={{
+                                            total: guestsList.reduce((sum, g) => sum + (g.max_attendees || 0), 0),
+                                            families: guestsList.length,
+                                            invited: guestsList.reduce((sum, g) => sum + (g.max_attendees || 0), 0),
+                                            sent: guestsList.filter(g => g.status === 'sent').length,
+                                            opened: guestsList.filter(g => g.status === 'opened').length,
+                                            yes: guestsList.reduce((sum, g) => sum + (g.attendees_count || 0), 0),
+                                            no: guestsList.filter(g => g.status === 'no').length
+                                        }}
+                                    />
+                                )}
 
-                        {/* Tabs & Content */}
-                        <div className="w-full flex flex-col items-start">
-                            <div className="w-full">
-                                <Tabs
-                                    activeKey={activeTab}
-                                    onChange={(key) => setActiveTab(key as 'overview' | 'edit' | 'design')}
-                                    className="mb-8"
-                                    items={[
-                                        {
-                                            key: 'overview',
-                                            label: <span className="font-bold uppercase tracking-[0.2em] text-[10px]">Guest List</span>,
-                                        },
-                                        {
-                                            key: 'edit',
-                                            label: <span className="font-bold uppercase tracking-[0.2em] text-[10px]">Wedding Info</span>,
-                                        },
-                                        {
-                                            key: 'design',
-                                            label: <span className="font-bold uppercase tracking-[0.2em] text-[10px]">Design Editor</span>,
-                                        },
-                                    ]}
+                                {/* Tabs & Content */}
+                                <div className="w-full flex flex-col items-start">
+                                    <div className="w-full">
+                                        <Tabs
+                                            activeKey={activeTab}
+                                            onChange={(key) => setActiveTab(key as 'overview' | 'edit' | 'design')}
+                                            className="mb-8"
+                                            items={[
+                                                {
+                                                    key: 'overview',
+                                                    label: <span className="font-bold uppercase tracking-[0.2em] text-[10px]">Registry</span>,
+                                                },
+                                                {
+                                                    key: 'edit',
+                                                    label: <span className="font-bold uppercase tracking-[0.2em] text-[10px]">Wedding Info</span>,
+                                                },
+                                                {
+                                                    key: 'design',
+                                                    label: <span className="font-bold uppercase tracking-[0.2em] text-[10px]">Design Editor</span>,
+                                                },
+                                            ]}
+                                        />
+                                    </div>
+                                    {activeTab === 'overview' && (
+                                        <div className="w-full mt-5 animate-in fade-in slide-in-from-bottom-2 duration-500 outline-none">
+                                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                                <AddGuestForm
+                                                    newGuestName={newGuestName}
+                                                    setNewGuestName={setNewGuestName}
+                                                    maxAttendees={maxAttendees}
+                                                    setMaxAttendees={setMaxAttendees}
+                                                    handleAddGuest={handleAddGuest}
+                                                />
+                                                <div className="lg:col-span-2">
+                                                    <GuestTable
+                                                        guestsList={guestsList}
+                                                        handleShareLink={handleShareLink}
+                                                        handleCopyLink={handleCopyLink}
+                                                        handleDeleteGuest={handleDeleteGuest}
+                                                        handleUpdateStatus={handleUpdateStatus}
+                                                        onRefresh={() => fetchDashboardData(wedding.id)}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {activeTab === 'edit' && (
+                                        <div className="w-full mt-5 animate-in fade-in slide-in-from-bottom-2 duration-500 outline-none">
+                                            <Card className="shadow-2xl shadow-stone-900/5 rounded-[2.5rem] border border-stone-100 bg-white/80 backdrop-blur-md p-6 md:p-10 [&>.ant-card-body]:p-0">
+                                                <WeddingDetailsForm
+                                                    editForm={editForm}
+                                                    setEditForm={setEditForm}
+                                                    handleUpdateWedding={() => handleUpdateWedding()}
+                                                    updateLoading={updateLoading}
+                                                    updateSuccess={!!updateSuccess}
+                                                    handleAudioUpload={handleAudioUpload}
+                                                    uploading={uploading}
+                                                    deleteMusicFile={deleteMusicFile}
+                                                />
+                                            </Card>
+                                        </div>
+                                    )}
+
+                                    {activeTab === 'design' && (
+                                        <div className="w-full mt-5 animate-in fade-in slide-in-from-bottom-2 duration-500 outline-none">
+                                            <Card className="shadow-2xl shadow-stone-900/5 rounded-[2.5rem] border border-stone-100 bg-white/80 backdrop-blur-md p-6 md:p-10 [&>.ant-card-body]:p-0">
+                                                <InvitationDesignPanel
+                                                    editForm={editForm}
+                                                    setEditForm={setEditForm}
+                                                    handleFileUpload={handleFileUpload}
+                                                    handleUpdateWedding={() => handleUpdateWedding()}
+                                                    uploading={uploading}
+                                                    updateLoading={updateLoading}
+                                                />
+                                            </Card>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="w-full animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                <div className="flex items-center justify-between mb-8">
+                                    <Button
+                                        onClick={() => setIsRegistryFullView(false)}
+                                        type="text"
+                                        className="font-bold text-stone-500 hover:text-stone-800 uppercase tracking-widest text-[10px] flex items-center gap-2"
+                                    >
+                                        ← Back to Dashboard
+                                    </Button>
+                                </div>
+                                <GuestTable
+                                    guestsList={guestsList}
+                                    handleShareLink={handleShareLink}
+                                    handleCopyLink={handleCopyLink}
+                                    handleDeleteGuest={handleDeleteGuest}
+                                    handleUpdateStatus={handleUpdateStatus}
+                                    onRefresh={() => fetchDashboardData(wedding.id)}
                                 />
                             </div>
-                            {activeTab === 'overview' && (
-                                <div className="w-full mt-5 animate-in fade-in slide-in-from-bottom-2 duration-500 outline-none">
-                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                        <AddGuestForm
-                                            newGuestName={newGuestName}
-                                            setNewGuestName={setNewGuestName}
-                                            maxAttendees={maxAttendees}
-                                            setMaxAttendees={setMaxAttendees}
-                                            handleAddGuest={handleAddGuest}
-                                        />
-                                        <div className="lg:col-span-2">
-                                            <GuestTable
-                                                guestsList={guestsList}
-                                                handleShareLink={handleShareLink}
-                                                handleCopyLink={handleCopyLink}
-                                                handleDeleteGuest={handleDeleteGuest}
-                                                handleUpdateStatus={handleUpdateStatus}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {activeTab === 'edit' && (
-                                <div className="w-full mt-5 animate-in fade-in slide-in-from-bottom-2 duration-500 outline-none">
-                                    <Card className="shadow-2xl shadow-stone-900/5 rounded-[2.5rem] border border-stone-100 bg-white/80 backdrop-blur-md p-6 md:p-10 [&>.ant-card-body]:p-0">
-                                        <WeddingDetailsForm
-                                            editForm={editForm}
-                                            setEditForm={setEditForm}
-                                            handleUpdateWedding={() => handleUpdateWedding()}
-                                            updateLoading={updateLoading}
-                                            updateSuccess={!!updateSuccess}
-                                            handleAudioUpload={handleAudioUpload}
-                                            uploading={uploading}
-                                            deleteMusicFile={deleteMusicFile}
-                                        />
-                                    </Card>
-                                </div>
-                            )}
-
-                            {activeTab === 'design' && (
-                                <div className="w-full mt-5 animate-in fade-in slide-in-from-bottom-2 duration-500 outline-none">
-                                    <Card className="shadow-2xl shadow-stone-900/5 rounded-[2.5rem] border border-stone-100 bg-white/80 backdrop-blur-md p-6 md:p-10 [&>.ant-card-body]:p-0">
-                                        <InvitationDesignPanel
-                                            editForm={editForm}
-                                            setEditForm={setEditForm}
-                                            handleFileUpload={handleFileUpload}
-                                            handleUpdateWedding={() => handleUpdateWedding()}
-                                            uploading={uploading}
-                                            updateLoading={updateLoading}
-                                        />
-                                    </Card>
-                                </div>
-                            )}
-                        </div>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -488,6 +523,8 @@ export default function AdminDashboardPage() {
                 }}
                 handleCopy={handleCopyLink}
             />
+
+
         </main>
     );
 }

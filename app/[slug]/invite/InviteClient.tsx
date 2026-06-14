@@ -16,7 +16,6 @@ import {
 import EnvelopeClient from '../EnvelopeClient';
 import { Card, Radio, Input, Button, Form, ConfigProvider } from 'antd';
 import { toast } from 'sonner';
-import { form } from 'framer-motion/client';
 
 interface InviteClientProps {
     wedding: any;
@@ -343,16 +342,20 @@ export default function InviteClient({ wedding }: InviteClientProps) {
     const ordinalSuffix = getOrdinalSuffix(eventDate.getDate());
 
     const getEmbedUrl = () => {
-        if (!wedding?.location_map_link) return '';
-        const link = wedding.location_map_link;
-        if (link.includes('embed')) {
-            if (link.startsWith('<iframe')) {
-                const match = link.match(/src="([^"]+)"/);
-                return match ? match[1] : link;
-            }
-            return link;
+        if (!wedding?.location_map_link) {
+            if (!wedding?.location_name && !wedding?.location) return "";
+            const query = encodeURIComponent(wedding.location_name || wedding.location);
+            return `https://maps.google.com/maps?q=${query}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
         }
-        return `https://maps.google.com/maps?q=${encodeURIComponent(wedding.location)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+
+        const link = wedding.location_map_link.trim();
+
+        if (link.startsWith('<iframe')) {
+            const match = link.match(/src=["']([^"']+)["']/);
+            return match ? match[1] : "";
+        }
+
+        return link;
     };
 
     if (error) {
@@ -440,7 +443,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                     {!isOpened ? (
                         <motion.div
                             key="envelope"
-                            exit={{ opacity: 0 }} // Envelope එක fade out වෙන්න
+                            exit={{ opacity: 0 }}
                             transition={{ duration: 0.5 }}
                         >
                             <EnvelopeClient
@@ -454,7 +457,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                             key="invitation"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ duration: 0.8, ease: "easeOut" }} // තත්පර 0.8ක් ඇතුලත smooth ලෝඩ් වෙනවා
+                            transition={{ duration: 0.8, ease: "easeOut" }}
                             className="min-h-screen bg-[#FAF6F0] relative selection:bg-[#B8935A]/10 selection:text-[#B8935A]"
                         >
                             {/* Dynamic Background Magic Particles Layer (Pink/Red Tones) */}
@@ -468,10 +471,10 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                             {/* ── STYLE INJECTIONS ── */}
                             <style dangerouslySetInnerHTML={{
                                 __html: `
-                @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
-                .font-cursive { font-family: 'Great Vibes', cursive; }
-                .font-serif-card { font-family: 'Playfair Display', serif; }
-                `
+                            @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+                            .font-cursive { font-family: 'Great Vibes', cursive; }
+                            .font-serif-card { font-family: 'Playfair Display', serif; }
+                            `
                             }} />
 
                             {/* Decorative frame lines */}
@@ -485,7 +488,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                 style={{
                                     scale: heroScale,
                                     opacity: heroOpacity
-                                }} className="min-h-screen flex flex-col justify-between items-center p-5 relative z-10 text-center overflow-hidden bg-[radial-gradient(circle_at_center,rgba(250,247,242,0.6)_0%,rgba(245,240,232,1)_100%)]">
+                                }} className="min-h-screen w-full flex flex-col justify-between items-center p-5 relative z-10 text-center overflow-hidden bg-[radial-gradient(circle_at_center,rgba(250,247,242,0.6)_0%,rgba(245,240,232,1)_100%)]">
 
                                 {/* Top Spacing Matrix */}
                                 <div className="h-4" />
@@ -495,7 +498,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                                    className="space-y-8 lg:w-[600px] w-full max-w-[600px] relative z-10 p-4 md:p-8 rounded-[2.5rem] border border-white/20 bg-gradient-to-b from-white/30 to-white/10 backdrop-blur-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.08)]"
+                                    className="space-y-8 lg:w-[720px] w-full relative z-10 p-4 md:p-6 rounded-xl border border-white/20 bg-gradient-to-b from-white/30 to-white/10 backdrop-blur-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.2)]"
                                 >
                                     {/* Intro Subtitle with Tracking Reveal */}
                                     <motion.div
@@ -508,7 +511,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                             TOGETHER WITH THEIR FAMILIES
                                         </span>
                                         {/* Minimalist Top Ornament */}
-                                        <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/50 to-transparent" />
+                                        <div className="w-40 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/50 to-transparent" />
                                     </motion.div>
 
                                     {/* The Royal Couple Moniker Container */}
@@ -520,9 +523,8 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                             className="text-5xl md:text-7xl font-serif-card text-stone-900 font-extralight tracking-wide leading-[1.2]"
                                         >
                                             <span className="block hover:text-[#B8935A] transition-colors duration-500 cursor-default font-normal tracking-normal">
-                                                {wedding.groom_name}
+                                                {wedding.bride_name}
                                             </span>
-
                                             {/* Luxury Intertwined Ampersand Motif */}
                                             <motion.span
                                                 animate={{ scale: [0.97, 1.03, 0.97] }}
@@ -531,10 +533,10 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                             >
                                                 &amp;
                                             </motion.span>
-
                                             <span className="block hover:text-[#B8935A] transition-colors duration-500 cursor-default font-normal tracking-normal">
-                                                {wedding.bride_name}
+                                                {wedding.groom_name}
                                             </span>
+
                                         </motion.h1>
                                     </div>
 
@@ -545,11 +547,11 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                         transition={{ duration: 1, delay: 0.6 }}
                                         className="flex flex-col items-center gap-4 pt-4"
                                     >
-                                        <div className="w-28 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/30 to-transparent" />
-                                        <span className="text-[10px] md:text-[11px] uppercase tracking-[0.3em] text-stone-400 font-bold block">
+                                        <div className="w-40 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/30 to-transparent" />
+                                        <span className="text-md md:text-[11px] uppercase tracking-[0.3em] text-stone-400 font-bold block">
                                             REQUEST THE HONOR OF YOUR PRESENCE
                                         </span>
-                                        <div className="w-28 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/30 to-transparent" />
+                                        <div className="w-40 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/30 to-transparent" />
                                     </motion.div>
 
                                     {/* Premium Translucent Floating Guest Card Box */}
@@ -557,7 +559,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                         initial={{ scale: 0.95, opacity: 0, y: 20 }}
                                         animate={{ scale: 1, opacity: 1, y: 0 }}
                                         transition={{ delay: 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                                        className="bg-white/70 border border-white/40 rounded-[2rem] p-8 md:p-10 shadow-[0_20px_40px_-15px_rgba(184,147,90,0.12)] max-w-lg mx-auto backdrop-blur-md relative group hover:border-[#B8935A]/30 hover:shadow-[0_30px_60px_-15px_rgba(184,147,90,0.18)] transition-all duration-700 bg-gradient-to-b from-white/90 to-white/60"
+                                        className="bg-white/70 border border-white/40 rounded-xl p-6 md:8 shadow-[0_20px_40px_-15px_rgba(184,147,90,0.12)] mx-auto backdrop-blur-md relative group hover:border-[#B8935A]/30 hover:shadow-[0_30px_60px_-15px_rgba(184,147,90,0.18)] transition-all duration-700 bg-gradient-to-b from-white/90 to-white/60"
                                     >
                                         {/* Box Internal Micro Corner Accents */}
                                         <div className="absolute top-4 left-4 size-2.5 border-t border-l border-[#B8935A]/40 rounded-tl transition-all duration-500 group-hover:top-3 group-hover:left-3" />
@@ -580,7 +582,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 0.7 }}
                                     transition={{ delay: 1.2, duration: 0.8 }}
-                                    className="flex flex-col items-center gap-2 cursor-pointer group/scroll z-10"
+                                    className="flex flex-col items-center gap-2 cursor-pointer group/scroll z-10 mt-2"
                                     onClick={() => {
                                         if (typeof window !== 'undefined') {
                                             window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
@@ -597,11 +599,10 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                 </motion.div>
                             </motion.section>
 
-                            {/* ── MAIN CONTENT CONTAINER (Responsive layout change: width 75% on large screens, full on mobile) ── */}
+                            {/* ── MAIN CONTENT CONTAINER ── */}
                             <div className="w-full xl:max-w-[75%] lg:max-w-[85%] md:max-w-[90%] mx-auto px-4 md:px-6 relative z-10 space-y-16">
 
                                 {/* ── SECTION 2: GRID WORKSPACE (INVITATION CANVAS & RSVP PORTAL) ── */}
-
                                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-12  items-center justify-center w-full h-auto">
                                     <motion.div
                                         initial={{
@@ -662,12 +663,13 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                                 </div>
 
                                                 <h2 className="text-4xl md:text-5xl font-cursive text-[#B8935A] tracking-wider py-1">
-                                                    {wedding.groom_name}
+                                                    {wedding.bride_name}
                                                 </h2>
                                                 <span className="font-serif-card text-sm text-stone-400 block my-1">and</span>
                                                 <h2 className="text-4xl md:text-5xl font-cursive text-[#B8935A] tracking-wider py-1">
-                                                    {wedding.bride_name}
+                                                    {wedding.groom_name}
                                                 </h2>
+
 
                                                 {/* Date Segmented Grid */}
                                                 <div className="grid grid-cols-3 items-center max-w-xs mx-auto border-y border-[#B8935A]/30 py-4 my-8">
@@ -713,10 +715,10 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                             initial={{ opacity: 0, scale: 0.98 }}
                                             whileInView={{ opacity: 1, scale: 1 }}
                                             viewport={{ once: true }}
-                                            className="flex flex-col items-center bg-[#1C1816] text-white p-6 md:p-8 rounded-3xl shadow-xl relative overflow-hidden flex flex-col justify-center"
+                                            className="flex flex-col items-center bg-gray-800 text-white  p-6 md:p-8 rounded-xl shadow-xl relative overflow-hidden flex flex-col justify-center"
                                         >
                                             <div className="absolute -right-10 -bottom-10 h-32 w-32 rounded-full border border-stone-800/40" />
-                                            <span className="text-[9px] uppercase tracking-[0.35em] text-amber-500 font-semibold block text-center mb-6">
+                                            <span className="text-xs uppercase tracking-[0.35em] text-amber-500 font-semibold block text-center mb-6">
                                                 COUNTING DOWN TO THE VOWS
                                             </span>
                                             <div className="grid grid-cols-4 gap-3 relative z-10 max-w-sm mx-auto w-full mb-8">
@@ -759,7 +761,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
 
                                             {/* Add to Calendar Button */}
                                             <a
-                                                href={`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`${wedding.groom_name} & ${wedding.bride_name} Wedding`)}&dates=${new Date(wedding.wedding_date).toISOString().replace(/-|:|\.\d\d\d/g, "")}/${new Date(new Date(wedding.wedding_date).getTime() + 2 * 60 * 60 * 1000).toISOString().replace(/-|:|\.\d\d\d/g, "")}&details=Join us for our wedding celebration!&location=${encodeURIComponent(wedding.location)}`}
+                                                href={`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`${wedding.bride_name} & ${wedding.groom_name} Wedding`)}&dates=${new Date(wedding.wedding_date).toISOString().replace(/-|:|\.\d\d\d/g, "")}/${new Date(new Date(wedding.wedding_date).getTime() + 2 * 60 * 60 * 1000).toISOString().replace(/-|:|\.\d\d\d/g, "")}&details=Join us for our wedding celebration!&location=${encodeURIComponent(wedding.location)}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="w-[50%] py-3 bg-[#B8935A] hover:bg-[#a6824e] text-white rounded-xl text-xs font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2 shadow-lg"
@@ -771,13 +773,13 @@ export default function InviteClient({ wedding }: InviteClientProps) {
 
 
                                     {/* ── LOCATION & MAPS SECTION ── */}
-                                    <section className="py-12 px-4 bg-[#FBF9F6] w-full">
-                                        <div className="max-w-6xl mx-auto w-full">
+                                    <section className="w-full">
+                                        <div className="mx-auto w-full">
                                             <motion.div
                                                 initial={{ opacity: 0, y: 20 }}
                                                 whileInView={{ opacity: 1, y: 0 }}
                                                 viewport={{ once: true }}
-                                                className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 p-6 md:p-10 flex flex-col md:flex-row gap-8 items-stretch"
+                                                className="bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-stone-100 p-6 md:p-10 flex flex-col md:flex-row gap-8 items-stretch"
                                             >
 
                                                 <div className="flex-1 space-y-6 text-center md:text-left flex flex-col justify-center">
@@ -797,35 +799,31 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                                         "We look forward to celebrating this joyous occasion with you."
                                                     </p>
 
-                                                    {wedding.location_map_link && (
-                                                        <div className="pt-2">
-                                                            <a
-                                                                href={wedding.location_map_link}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="inline-flex items-center gap-2 bg-[#B8935A] hover:bg-[#9e7c46] text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg"
-                                                            >
-                                                                Open in Map
-                                                            </a>
-                                                        </div>
-                                                    )}
+                                                    <div className="pt-2">
+                                                        {/* Backend map link එකක් තිබ්බොත් ඒක, නැත්නම් address එක google එකේ search වෙන fallback link එකක් දෙනවා */}
+                                                        <a
+                                                            href={wedding.location_map_link && !wedding.location_map_link.startsWith('<iframe')
+                                                                ? wedding.location_map_link
+                                                                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(wedding.location_name || wedding.location)}`
+                                                            }
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-2 bg-[#B8935A] hover:bg-[#9e7c46] text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg"
+                                                        >
+                                                            Open in Map
+                                                        </a>
+                                                    </div>
                                                 </div>
 
-                                                {/* Google Maps Embed Side - Responsive Wrapper */}
+                                                {/* Google Maps Embed Side */}
                                                 <motion.div
-                                                    initial={{
-                                                        x: 80,
-                                                        opacity: 0
-                                                    }}
-                                                    whileInView={{
-                                                        x: 0,
-                                                        opacity: 1
-                                                    }}
-                                                    transition={{
-                                                        duration: 1
-                                                    }}
-                                                    viewport={{ once: true }} className="w-full md:w-1/2 h-[300px] md:h-auto min-h-[300px] rounded-2xl overflow-hidden shadow-inner border border-stone-100 relative">
-                                                    {wedding.location_map_link ? (
+                                                    initial={{ x: 80, opacity: 0 }}
+                                                    whileInView={{ x: 0, opacity: 1 }}
+                                                    transition={{ duration: 1 }}
+                                                    viewport={{ once: true }}
+                                                    className="w-full md:w-1/2 h-[300px] md:h-auto min-h-[300px] rounded-2xl overflow-hidden shadow-inner border border-stone-100 relative bg-stone-50"
+                                                >
+                                                    {getEmbedUrl() ? (
                                                         <iframe
                                                             src={getEmbedUrl()}
                                                             width="100%"
@@ -855,7 +853,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                     className="w-full mb-10"
                                 >
                                     <Card
-                                        className="rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border-stone-100 overflow-hidden"
+                                        className="rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border-stone-100 overflow-hidden"
                                         styles={{ body: { padding: '2rem' } }}
                                     >
                                         <div className="text-center mb-8">
@@ -886,7 +884,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                                             : 'bg-white text-red-500 border-red-500 hover:border-red-500 hover:text-red-500'}`}
                                                 >
                                                     <span className='!text-[12px] !md:text-sm'>
-                                                        SORRY, CAN'T ATTEND
+                                                        CAN'T ATTEND
                                                     </span>
                                                 </Button>
                                             </div>
