@@ -276,6 +276,15 @@ export default function AdminDashboardPage() {
         setTimeout(() => setUpdateSuccess(''), 3000);
     };
 
+    const handleCopyMessage = (guest: any) => {
+        if (!wedding) return;
+        const messageText = `Two hearts, one journey, and a lifetime of love await 💍✨\nWe are delighted to invite you to be part of our wedding celebration.\n\nAs we exchange our vows and begin our forever 💖 we would be honored to share this joyous occasion with you. 🤍\n\nHere is your digital invitation:\n${window.location.origin}/${wedding.slug}/invite?g=${guest.id}`;
+        navigator.clipboard.writeText(messageText);
+        setUpdateSuccess(`Invitation message for ${guest.name} copied! 📋`);
+        setTimeout(() => setUpdateSuccess(''), 3000);
+        toast.success('Invitation message copied to clipboard!');
+    };
+
     const handleDirectCopyLink = (guest: any) => {
         if (!wedding) return;
         const link = `${window.location.origin}/${wedding.slug}/invite?g=${guest.id}`;
@@ -460,6 +469,7 @@ export default function AdminDashboardPage() {
                                                         guestsList={guestsList.slice(0, 5)}
                                                         handleShareLink={handleShareLink}
                                                         handleCopyLink={handleDirectCopyLink}
+                                                        handleCopyMessage={handleCopyMessage}
                                                         handleDeleteGuest={handleDeleteGuest}
                                                         handleUpdateStatus={handleUpdateStatus}
                                                         onRefresh={() => fetchDashboardData(wedding.id)}
@@ -526,6 +536,7 @@ export default function AdminDashboardPage() {
                                     guestsList={guestsList}
                                     handleShareLink={handleShareLink}
                                     handleCopyLink={handleDirectCopyLink}
+                                    handleCopyMessage={handleCopyMessage}
                                     handleDeleteGuest={handleDeleteGuest}
                                     handleUpdateStatus={handleUpdateStatus}
                                     onRefresh={() => fetchDashboardData(wedding.id)}
