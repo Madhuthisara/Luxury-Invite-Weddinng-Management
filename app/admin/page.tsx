@@ -185,7 +185,6 @@ export default function AdminDashboardPage() {
 
         if (!newGuestName.trim() || !wedding) return;
 
-
         const toastId = toast.loading('Adding guest...');
 
         try {
@@ -206,7 +205,6 @@ export default function AdminDashboardPage() {
             setMaxAttendees(1);
 
             await fetchDashboardData(wedding.id);
-
             toast.success('Guest added successfully!', { id: toastId });
 
         } catch (error) {
@@ -262,7 +260,23 @@ export default function AdminDashboardPage() {
         }
     };
 
-    const handleCopyLink = (guest: any) => {
+    const handleCopyLink = (text: string, type: 'link' | 'message') => {
+        if (!wedding) return;
+
+        navigator.clipboard.writeText(text);
+
+        if (type === 'link') {
+            setUpdateSuccess(`Invitation link copied! 📋`);
+            toast.success('Invitation link copied to clipboard!');
+        } else {
+            setUpdateSuccess(`Full invitation message copied! 📋`);
+            toast.success('Full invitation message copied!');
+        }
+
+        setTimeout(() => setUpdateSuccess(''), 3000);
+    };
+
+    const handleDirectCopyLink = (guest: any) => {
         if (!wedding) return;
         const link = `${window.location.origin}/${wedding.slug}/invite?g=${guest.id}`;
         navigator.clipboard.writeText(link);
@@ -445,7 +459,7 @@ export default function AdminDashboardPage() {
                                                     <GuestTable
                                                         guestsList={guestsList.slice(0, 5)}
                                                         handleShareLink={handleShareLink}
-                                                        handleCopyLink={handleCopyLink}
+                                                        handleCopyLink={handleDirectCopyLink}
                                                         handleDeleteGuest={handleDeleteGuest}
                                                         handleUpdateStatus={handleUpdateStatus}
                                                         onRefresh={() => fetchDashboardData(wedding.id)}
@@ -511,7 +525,7 @@ export default function AdminDashboardPage() {
                                 <GuestTable
                                     guestsList={guestsList}
                                     handleShareLink={handleShareLink}
-                                    handleCopyLink={handleCopyLink}
+                                    handleCopyLink={handleDirectCopyLink}
                                     handleDeleteGuest={handleDeleteGuest}
                                     handleUpdateStatus={handleUpdateStatus}
                                     onRefresh={() => fetchDashboardData(wedding.id)}
@@ -528,12 +542,10 @@ export default function AdminDashboardPage() {
                 guest={selectedGuestForShare}
                 generateInviteLink={(guestId) => {
                     if (typeof window === 'undefined') return '';
-                    return `${window.location.origin}/${wedding?.slug}?g=${guestId}`;
+                    return `${window.location.origin}/${wedding?.slug}/invite?g=${guestId}`;
                 }}
                 handleCopy={handleCopyLink}
             />
-
-
         </main>
     );
 }

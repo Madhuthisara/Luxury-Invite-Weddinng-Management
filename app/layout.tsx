@@ -5,7 +5,23 @@ import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: 'We Are Getting Married! 🤵👰',
-  description: 'You are cordially invited to celebrate our beautiful union.',
+  description: 'You are cordially invited to celebrate our beautiful day.',
+  openGraph: {
+    title: 'We Are Getting Married! 🤵👰',
+    description: 'You are cordially invited to celebrate our beautiful day.',
+    url: 'https://weddinng-invitation.vercel.app',
+    siteName: 'Wedding Invitation',
+    images: [
+      {
+        url: 'https://weddinng-invitation.vercel.app/og-image.jpeg',
+        width: 1200,
+        height: 630,
+        alt: 'Wedding Invitation Preview',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
 };
 
 import { AntdRegistry } from '@ant-design/nextjs-registry';
