@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { Modal, Button } from "antd";
-import { Share2, Send, Copy, X, Mail } from 'lucide-react';
+import { Share2, Send, Copy, X, Mail, FileText } from 'lucide-react';
 
 interface ShareModalProps {
     isOpen: boolean;
     onClose: () => void;
     guest: { name: string; id: string; phone?: string; email?: string } | null;
     generateInviteLink: (id: string | null) => string;
-    handleCopy: (guest: any) => void;
+    handleCopy: (text: string, type: 'link' | 'message') => void;
 }
 
 export const ShareModal = ({
@@ -20,12 +20,19 @@ export const ShareModal = ({
     handleCopy
 }: ShareModalProps) => {
     const inviteLink = generateInviteLink(guest?.id || null);
-    const messageText = `Hi ${guest?.name}! We'd love for you to join us at our wedding. Here is your digital invitation: ${inviteLink}`;
 
+    const messageText = `Two hearts, one journey, and a lifetime of love await 💍✨\nWe are delighted to invite you to be part of our wedding celebration.\n\nAs we exchange our vows and begin our forever 💖 we would be honored to share this joyous occasion with you. 🤍\n\nHere is your digital invitation:\n${inviteLink}`;
     const shareViaWhatsApp = () => {
         const phone = guest?.phone || "";
-        const url = `https://wa.me/${phone}?text=${encodeURIComponent(messageText)}`;
-        window.open(url, '_blank');
+        try {
+            const url = new URL(`https://wa.me/${phone}`);
+            url.searchParams.set('text', messageText);
+
+            window.open(url.toString(), '_blank');
+        } catch (error) {
+            const fallbackUrl = `https://wa.me/${phone}?text=${encodeURIComponent(messageText)}`;
+            window.open(fallbackUrl, '_blank');
+        }
     };
 
     const shareViaEmail = () => {
@@ -43,7 +50,7 @@ export const ShareModal = ({
             centered
             className="w-full max-w-sm rounded-[2.5rem]"
         >
-            <div className="relative bg-white/90 w-full  overflow-hidden">
+            <div className="relative bg-white/90 w-full overflow-hidden">
                 <div className="p-8 pb-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="size-10 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
@@ -58,9 +65,18 @@ export const ShareModal = ({
                 </div>
 
                 <div className="p-8 pt-2 space-y-4">
-                    {/* Copy Link Button */}
-                    <Button onClick={() => handleCopy(guest)} className="w-full h-14 rounded-2xl flex items-center justify-center gap-2 font-bold uppercase tracking-widest text-[10px]">
-                        <Copy className="size-4" /> Copy Link
+                    <Button
+                        onClick={() => handleCopy(inviteLink, 'link')}
+                        className="w-full h-14 rounded-2xl flex items-center justify-center gap-2 font-bold uppercase tracking-widest text-[10px]"
+                    >
+                        <Copy className="size-4" /> Copy Link Only
+                    </Button>
+
+                    <Button
+                        onClick={() => handleCopy(messageText, 'message')}
+                        className="w-full h-14 bg-stone-100 text-stone-800 border-stone-200 rounded-2xl flex items-center justify-center gap-2 font-bold uppercase tracking-widest text-[10px] hover:bg-stone-200 transition-all"
+                    >
+                        <FileText className="size-4" /> Copy Full Message
                     </Button>
 
                     {/* WhatsApp Button */}

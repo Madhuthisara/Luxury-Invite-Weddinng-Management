@@ -163,7 +163,6 @@ export default function InviteClient({ wedding }: InviteClientProps) {
 
             const params = new URLSearchParams(window.location.search);
             const guestId = params.get('g');
-            console.log("Initializing guest for wedding:", wedding.slug, "Guest ID:", guestId);
 
             if (guestId) {
                 const { data, error: fetchError } = await supabase
