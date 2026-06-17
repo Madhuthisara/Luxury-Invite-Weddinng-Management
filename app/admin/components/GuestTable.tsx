@@ -18,6 +18,7 @@ interface GuestTableProps {
     guestsList: Guest[];
     handleShareLink: (guest: Guest) => void;
     handleCopyLink: (guest: Guest) => void;
+    handleCopyMessage: (guest: Guest) => void;
     handleDeleteGuest: (id: string) => void;
     handleUpdateStatus: (id: string, status: string, attendeesCount?: number) => void;
     onRefresh?: () => void;
@@ -39,7 +40,7 @@ const STATUS_CONFIG: Record<string, { label: string; icon: any }> = {
     no: { label: 'Declined', icon: XCircle },
 };
 
-export const GuestTable = ({ guestsList, handleShareLink, handleCopyLink, handleDeleteGuest, handleUpdateStatus, onRefresh }: GuestTableProps) => {
+export const GuestTable = ({ guestsList, handleShareLink, handleCopyLink, handleDeleteGuest, handleUpdateStatus, onRefresh, handleCopyMessage }: GuestTableProps) => {
     const [data, setData] = useState<Guest[]>(guestsList);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
@@ -144,6 +145,7 @@ export const GuestTable = ({ guestsList, handleShareLink, handleCopyLink, handle
                 const items: MenuProps['items'] = [
                     { key: 'share', label: 'Share', onClick: () => handleShareLink(guest) },
                     { key: 'copy', label: 'Copy Link', onClick: () => handleCopyLink(guest) },
+                    { key: 'copy_message', label: 'Copy Share Message', onClick: () => handleCopyMessage(guest) },
                     { key: 'delete', label: <span className="text-rose-500">Remove</span>, onClick: () => handleDeleteGuest(guest.id) }
                 ];
 

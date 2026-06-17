@@ -24,15 +24,12 @@ export const ShareModal = ({
     const messageText = `Two hearts, one journey, and a lifetime of love await 💍✨\nWe are delighted to invite you to be part of our wedding celebration.\n\nAs we exchange our vows and begin our forever 💖 we would be honored to share this joyous occasion with you. 🤍\n\nHere is your digital invitation:\n${inviteLink}`;
     const shareViaWhatsApp = () => {
         const phone = guest?.phone || "";
-        try {
-            const url = new URL(`https://wa.me/${phone}`);
-            url.searchParams.set('text', messageText);
 
-            window.open(url.toString(), '_blank');
-        } catch (error) {
-            const fallbackUrl = `https://wa.me/${phone}?text=${encodeURIComponent(messageText)}`;
-            window.open(fallbackUrl, '_blank');
-        }
+        const cleanPhone = phone.replace(/\+/g, '');
+
+        const url = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURI(messageText)}`;
+
+        window.open(url, '_blank');
     };
 
     const shareViaEmail = () => {
