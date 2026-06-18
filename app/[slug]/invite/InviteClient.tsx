@@ -23,16 +23,16 @@ interface InviteClientProps {
 
 const PetalsLayer = memo(() => {
     const petals = useMemo(() => {
-        return Array.from({ length: 40 }).map((_, i) => ({
+        return Array.from({ length: 30 }).map((_, i) => ({
             id: i,
-            size: Math.random() * 25 + 15,
+            size: Math.random() * 20 + 10,
             left: Math.random() * 100,
-            duration: Math.random() * 8 + 10,
-            delay: Math.random() * 15,
-            xDrift1: Math.random() * 80 - 40,
-            xDrift2: Math.random() * 80 - 40,
-            rotateMax: Math.random() * 360 + 180,
-            blur: Math.random() > 0.5 ? 'blur(1px)' : 'none'
+            duration: Math.random() * 10 + 15,
+            delay: Math.random() * 20,
+            xDrift1: Math.random() * 60 - 30,
+            xDrift2: Math.random() * 60 - 30,
+            rotateMax: Math.random() * 360 + 360,
+            blur: Math.random() > 0.7 ? 'blur(1px)' : 'none'
         }));
     }, []);
 
@@ -58,20 +58,21 @@ const PetalsLayer = memo(() => {
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'center',
                         filter: petal.blur,
-                        opacity: 0.5
+                        opacity: 0.5,
+                        willChange: 'transform'
                     }}
                     animate={{
-                        y: ['0vh', '400vh'],
+                        y: ['0vh', '110vh'],
                         x: [0, petal.xDrift1, petal.xDrift2],
                         rotate: [0, petal.rotateMax],
-                        opacity: [0.5, 0.8, 0.8, 0.5]
+                        opacity: [0, 0.6, 0.6, 0]
                     }}
                     transition={{
                         duration: petal.duration,
                         repeat: Infinity,
                         delay: petal.delay,
                         ease: "linear",
-                        times: [0.5, 0.6, 0.9, 1]
+                        times: [0, 0.2, 0.8, 1]
                     }}
                 />
             ))}
@@ -390,9 +391,9 @@ export default function InviteClient({ wedding }: InviteClientProps) {
         <motion.div
             initial={{
                 opacity: 0,
-                y: 80,
-                scale: 0.96,
-                filter: 'blur(10px)'
+                y: 50,
+                scale: 0.98,
+                filter: 'blur(4px)'
             }}
             whileInView={{
                 opacity: 1,
@@ -402,11 +403,11 @@ export default function InviteClient({ wedding }: InviteClientProps) {
             }}
             viewport={{
                 once: true,
-                amount: 0.2
+                amount: 0.15
             }}
             transition={{
-                duration: 1.2,
-                ease: [0.16, 1, 0.3, 1]
+                duration: 0.9,
+                ease: [0.33, 1, 0.68, 1]
             }}
         >
             {children}
@@ -438,7 +439,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
     return (
         <>
             <ConfigProvider theme={{ token: { fontFamily: 'inherit', colorPrimary: '#B8935A' } }}>
-                <AnimatePresence mode="wait">
+                <AnimatePresence>
                     {!isOpened ? (
                         <motion.div
                             key="envelope"
@@ -494,16 +495,27 @@ export default function InviteClient({ wedding }: InviteClientProps) {
 
                                 {/* Main Cinematic Typography Body */}
                                 <motion.div
-                                    initial={{ opacity: 0, y: 30 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                                    variants={{
+                                        hidden: { opacity: 0 },
+                                        show: {
+                                            opacity: 1,
+                                            transition: {
+                                                staggerChildren: 0.2,
+                                                delayChildren: 0.3
+                                            }
+                                        }
+                                    }}
+                                    initial="hidden"
+                                    animate="show"
                                     className="space-y-8 lg:w-[720px] w-full relative z-10 p-4 md:p-6 rounded-xl border border-white/20 bg-gradient-to-b from-white/30 to-white/10 backdrop-blur-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.2)]"
                                 >
                                     {/* Intro Subtitle with Tracking Reveal */}
                                     <motion.div
-                                        initial={{ opacity: 0, letterSpacing: "0.1em" }}
-                                        animate={{ opacity: 1, letterSpacing: "0.35em" }}
-                                        transition={{ duration: 1.5, ease: "easeOut" }}
+                                        variants={{
+                                            hidden: { opacity: 0, y: 20 },
+                                            show: { opacity: 1, y: 0 }
+                                        }}
+                                        transition={{ duration: 1, ease: "easeOut" }}
                                         className="flex flex-col items-center gap-4"
                                     >
                                         <span className="text-[11px] md:text-[12px] uppercase font-bold tracking-[0.35em] text-[#B8935A]">
@@ -516,9 +528,11 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                     {/* The Royal Couple Moniker Container */}
                                     <div className="space-y-2">
                                         <motion.h1
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                                            variants={{
+                                                hidden: { opacity: 0, y: 30 },
+                                                show: { opacity: 1, y: 0 }
+                                            }}
+                                            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                                             className="text-5xl md:text-7xl font-serif-card text-stone-900 font-extralight tracking-wide leading-[1.2]"
                                         >
                                             <span className="block hover:text-[#B8935A] transition-colors duration-500 cursor-default font-normal tracking-normal">
@@ -541,9 +555,11 @@ export default function InviteClient({ wedding }: InviteClientProps) {
 
                                     {/* Invitation Message & Bottom Divider Line */}
                                     <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{ duration: 1, delay: 0.6 }}
+                                        variants={{
+                                            hidden: { opacity: 0 },
+                                            show: { opacity: 1 }
+                                        }}
+                                        transition={{ duration: 1 }}
                                         className="flex flex-col items-center gap-4 pt-4"
                                     >
                                         <div className="w-40 h-[1px] bg-gradient-to-r from-transparent via-[#B8935A]/30 to-transparent" />
@@ -555,9 +571,11 @@ export default function InviteClient({ wedding }: InviteClientProps) {
 
                                     {/* Premium Translucent Floating Guest Card Box */}
                                     <motion.div
-                                        initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                                        variants={{
+                                            hidden: { opacity: 0, y: 40, scale: 0.95 },
+                                            show: { opacity: 1, y: 0, scale: 1 }
+                                        }}
+                                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                                         className="bg-white/70 border border-white/40 rounded-xl p-6 md:p-8 shadow-[0_20px_40px_-15px_rgba(184,147,90,0.12)] mx-auto backdrop-blur-md relative group hover:border-[#B8935A]/30 hover:shadow-[0_30px_60px_-15px_rgba(184,147,90,0.18)] transition-all duration-700 bg-gradient-to-b from-white/90 to-white/60"
                                     >
                                         {/* Box Internal Micro Corner Accents */}
