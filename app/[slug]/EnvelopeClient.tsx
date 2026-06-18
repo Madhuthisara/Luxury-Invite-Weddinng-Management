@@ -17,9 +17,10 @@ export default function EnvelopeClient({ wedding, recipientName, onOpen }: Envel
     const handleOpen = () => {
         if (isAnimating) return;
         setIsAnimating(true);
+        // Call onOpen slightly earlier to overlap with the exit animation
         setTimeout(() => {
             onOpen();
-        }, 1000);
+        }, 1200);
     };
 
     console.log(wedding);
@@ -92,14 +93,14 @@ export default function EnvelopeClient({ wedding, recipientName, onOpen }: Envel
                     animate={isAnimating ? {
                         y: [0, -350, 0],
                         rotate: [0, 90, 90],
-                        scale: [1, 1.2, 12],
+                        scale: [1, 1.1, 20],
                         opacity: [1, 1, 0]
                     } : {}}
                     transition={{
-                        duration: 1.5,
-                        delay: 0.5,
-                        ease: "easeInOut",
-                        times: [0, 0.4, 1]
+                        duration: 1.8,
+                        delay: 0.2,
+                        ease: [0.45, 0, 0.55, 1],
+                        times: [0, 0.3, 1]
                     }}
                 >
                     {wedding?.blank_card_url ? (
