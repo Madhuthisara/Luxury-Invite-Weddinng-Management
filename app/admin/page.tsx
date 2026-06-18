@@ -523,7 +523,7 @@ export default function AdminDashboardPage() {
                             </>
                         ) : (
                             <div className="w-full animate-in fade-in slide-in-from-bottom-2 duration-500">
-                                <div className="flex items-center justify-between mb-8">
+                                <div className="flex items-center justify-between mb-4">
                                     <Button
                                         onClick={() => setIsRegistryFullView(false)}
                                         type="text"

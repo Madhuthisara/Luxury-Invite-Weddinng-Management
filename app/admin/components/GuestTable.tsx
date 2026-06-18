@@ -196,9 +196,10 @@ export const GuestTable = ({ guestsList, handleShareLink, handleCopyLink, handle
                     columns={columns as any}
                     dataSource={data}
                     rowKey="id"
+                    size='small'
                     pagination={false}
                     className="w-full"
-                    scroll={{ y: 450 }}
+                    scroll={{ y: 520 }}
                 />
             </div>
         </div>

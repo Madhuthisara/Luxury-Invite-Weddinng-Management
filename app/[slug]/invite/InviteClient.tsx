@@ -558,7 +558,7 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                         initial={{ scale: 0.95, opacity: 0, y: 20 }}
                                         animate={{ scale: 1, opacity: 1, y: 0 }}
                                         transition={{ delay: 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                                        className="bg-white/70 border border-white/40 rounded-xl p-6 md:8 shadow-[0_20px_40px_-15px_rgba(184,147,90,0.12)] mx-auto backdrop-blur-md relative group hover:border-[#B8935A]/30 hover:shadow-[0_30px_60px_-15px_rgba(184,147,90,0.18)] transition-all duration-700 bg-gradient-to-b from-white/90 to-white/60"
+                                        className="bg-white/70 border border-white/40 rounded-xl p-6 md:p-8 shadow-[0_20px_40px_-15px_rgba(184,147,90,0.12)] mx-auto backdrop-blur-md relative group hover:border-[#B8935A]/30 hover:shadow-[0_30px_60px_-15px_rgba(184,147,90,0.18)] transition-all duration-700 bg-gradient-to-b from-white/90 to-white/60"
                                     >
                                         {/* Box Internal Micro Corner Accents */}
                                         <div className="absolute top-4 left-4 size-2.5 border-t border-l border-[#B8935A]/40 rounded-tl transition-all duration-500 group-hover:top-3 group-hover:left-3" />
@@ -626,13 +626,6 @@ export default function InviteClient({ wedding }: InviteClientProps) {
                                         viewport={{ once: true, margin: '-50px' }}
                                         className="bg-white w-full max-w-[720px] flex flex-col items-center justify-center p-6 md:p-12 text-center relative overflow-hidden bg-transparent rounded-2xl"
                                     >
-                                        {/* Header Content */}
-                                        <div className="space-y-1 mb-6">
-                                            <p className="text-[10px] tracking-widest text-[#B8935A] uppercase font-semibold">TOGETHER WITH THEIR FAMILIES</p>
-                                            <p className="text-[9px] tracking-widest text-stone-400 font-medium uppercase mt-2">
-                                                REQUEST THE HONOUR OF THE PRESENCE OF
-                                            </p>
-                                        </div>
 
                                         {/* Image Canvas View Mode - Responsive Width */}
                                         {wedding.blank_card_url ? (
