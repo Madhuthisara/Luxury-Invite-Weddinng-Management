@@ -70,7 +70,7 @@ export default function EnvelopeClient({ wedding, recipientName, onOpen }: Envel
                 <div className="flex flex-col items-center justify-center py-2 md:py-4">
                     <h1 className="text-6xl sm:text-7xl md:text-8xl font-priestacy text-stone-800 tracking-wide leading-[1.3] md:leading-[1.4] drop-shadow-sm flex flex-col md:flex-row items-center justify-center gap-1 md:gap-6">
                         <span className="block">{wedding?.bride_name}</span>
-                        <span className="text-gold-500  block text-2xl text-2xl sm:text-3xl md:text-7xl my-1 md:my-0 md:translate-y-[-4px]"> &</span>
+                        <span className="text-gold-500  block text-4xl sm:text-5xl md:text-7xl my-1 md:my-0 md:translate-y-[-4px]"> &</span>
                         <span className="block">{wedding?.groom_name}</span>
                     </h1>
                 </div>
