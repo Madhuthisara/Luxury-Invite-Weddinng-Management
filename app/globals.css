@@ -12,9 +12,16 @@
   }
 }
 
-/* Elegant fonts loading */
+@font-face {
+  font-family: 'Priestacy';
+  src: url('/fonts/Priestacy.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 @theme {
+  --font-priestacy: 'Priestacy', sans-serif;
   --font-serif: 'Cinzel', serif;
   --font-sans: 'Montserrat', sans-serif;
 

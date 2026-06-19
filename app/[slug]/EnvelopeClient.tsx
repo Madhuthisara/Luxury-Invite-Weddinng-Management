@@ -55,26 +55,43 @@ export default function EnvelopeClient({ wedding, recipientName, onOpen }: Envel
             ))}
 
             {/* Elegant Top Header */}
-            <div className="text-center mb-10">
+            <div className="text-center w-full max-w-3xl mx-auto px-4 mb-8 md:mb-16 select-none">
+                {/* Top Badge
                 <motion.span
-                    initial={{ opacity: 0 }}
+                    initial={{ opacity: 0, y: -10 }}
                     animate={isAnimating ? { opacity: 0, y: -20 } : { opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, ease: "easeOut" }}
-                    className="text-md md:text-xs text-[#B8935A] tracking-[0.5em] uppercase font-bold block mb-8"
+                    className="text-[10px] md:text-xs text-gold-500 tracking-[0.4em] md:tracking-[0.6em] uppercase font-bold block mb-4 md:mb-6"
                 >
                     Wedding Invitation
-                </motion.span>
-                <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6">
-                    <h1 className="text-4xl md:text-7xl font-cursive text-stone-800 mb-3 drop-shadow-sm">
-                        {wedding?.bride_name} <span className="text-[#B8935A] italic text-3xl md:text-4xl">&</span> {wedding?.groom_name}
+                </motion.span> */}
+
+                {/* Names Display Area */}
+                <div className="flex flex-col items-center justify-center py-2 md:py-4">
+                    <h1 className="text-6xl sm:text-7xl md:text-8xl font-priestacy text-stone-800 tracking-wide leading-[1.3] md:leading-[1.4] drop-shadow-sm flex flex-col md:flex-row items-center justify-center gap-1 md:gap-6">
+                        <span className="block">{wedding?.bride_name}</span>
+                        <span className="text-gold-500  block text-2xl text-2xl sm:text-3xl md:text-7xl my-1 md:my-0 md:translate-y-[-4px]"> &</span>
+                        <span className="block">{wedding?.groom_name}</span>
                     </h1>
                 </div>
+
+                {/* Divider Line */}
+                <motion.div
+                    initial={{ scaleX: 0, opacity: 0 }}
+                    animate={isAnimating ? { scaleX: 0, opacity: 0 } : { scaleX: 1, opacity: 0.2 }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                    className="w-24 md:w-36 h-[1px] bg-gold-500 mx-auto my-5 md:my-7"
+                />
+
+                {/* Guest Invitation Text */}
                 <motion.p
                     initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8 }}
-                    className="text-xs md:text-sm text-stone-500 uppercase tracking-[0.4em] font-medium">
-                    Dear {recipientName || "Guest"}, please scroll over or tap to open your invitation
+                    animate={isAnimating ? { opacity: 0, y: 10 } : { opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8, duration: 0.6 }}
+                    className="text-[11px] md:text-xs text-stone-500 uppercase tracking-[0.25em] md:tracking-[0.35em] font-medium max-w-md mx-auto leading-relaxed px-2"
+                >
+                    Dear <span className="text-stone-800 font-bold block md:inline my-0.5 md:my-0">{recipientName || "Guest"}</span>,
+                    <span className="block md:inline md:ml-1">please scroll over or tap to open your invitation</span>
                 </motion.p>
             </div>
 
